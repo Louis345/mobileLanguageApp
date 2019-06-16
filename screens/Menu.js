@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  Text,
-  Animated,
-  View,
-  StyleSheet,
-  Dimensions
-} from 'react-native';
+import { SafeAreaView, Text, Animated, View, StyleSheet } from 'react-native';
 import { menuHeader, buttonColors } from '../styles/styles';
 import Card from '../components/Card/Card';
 import Decks from '../components/Card/card-fixture';
 import { onScroll } from '../util/animationHelper';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
 
