@@ -22,10 +22,11 @@ export default class CreateCard extends React.Component {
     flipCard: false,
     flashCards: [''],
     flashCardsPosition: [],
-    offset: {}
+    offset: {},
+    currentlyViewedCard: null
   };
   handleNewCard = () => {
-    const { currentIndex } = this.state;
+    const { currentlyViewedCard } = this.state;
     const newFlashCards = [...this.state.flashCards];
     newFlashCards.push('new Card');
     this.setState(
@@ -47,13 +48,24 @@ export default class CreateCard extends React.Component {
   handleLayoutChange(event, index) {
     this.feedPost.measure((fx, fy, width, height, px, py) => {
       const newFlashCardPosition = [...this.state.flashCardsPosition];
-      newFlashCardPosition.push({ [index]: fx });
+      newFlashCardPosition.push(fx);
       this.setState({
         flashCardsPosition: newFlashCardPosition,
-        currentIndex: index
+        currentlyViewedCard: index
       });
     });
   }
+
+  handleOnScrollEndDrag = (targetContentOffset, event) => {
+    const { flashCardsPosition } = this.state;
+    const cardPosition = Math.round(
+      targetContentOffset / flashCardsPosition[1]
+    );
+    this.setState({
+      currentlyViewedCard: cardPosition
+    });
+  };
+
   render() {
     const actionSheetHeight = {
       top:
@@ -62,7 +74,7 @@ export default class CreateCard extends React.Component {
     };
     console.log(Dimensions.get('window').width);
     console.log(this.state.flashCardsPosition);
-    const { flashCards } = this.state;
+    const { flashCards, currentlyViewedCard } = this.state;
     console.log(this.state.flashCards.length === 1);
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
@@ -71,7 +83,7 @@ export default class CreateCard extends React.Component {
             <Text>Delete Card</Text>
           </View>
           <View>
-            <Text>Card 1 - Front</Text>
+            <Text>{`${currentlyViewedCard} - Front`}</Text>
           </View>
           <View>
             <Text>Done</Text>
@@ -94,24 +106,12 @@ export default class CreateCard extends React.Component {
               right: -SCREEN_WIDTH * 0.64
             }}
             onScrollEndDrag={event => {
-              console.log(event.nativeEvent);
-              console.log('flasc', this.state.flashCardsPosition);
-              // const currentOffset = event.nativeEvent.targetContentOffset.x;
-              // const intialOffsetPosition =
-              //   Math.floor(
-              //     this.state.flashCardsPosition[this.state.currentIndex][
-              //       this.state.currentIndex
-              //     ]
-              //   ) - event.nativeEvent.targetContentOffset.x;
-              // console.log('value', intialOffsetPosition);
-              // console.log('currentffset', currentOffset);
-              // this.state.flashCardsPosition.forEach((position, index) => {
-              //   console.log('saved position', position[index]);
-              //   console.log('current off set', currentOffset);
-              //   if (currentOffset === position.x) {
-              //     console.log('current position', index + 1);
-              //   }
-              // });
+              if (event.nativeEvent) {
+                this.handleOnScrollEndDrag(
+                  event.nativeEvent.targetContentOffset.x,
+                  event
+                );
+              }
             }}
             scrollEventThrottle={16}
           >
@@ -120,7 +120,6 @@ export default class CreateCard extends React.Component {
                 <View
                   style={styles.contentContainer}
                   onLayout={event => {
-                    console.log('event', event.nativeEvent.targetContentOffset);
                     this.handleLayoutChange(event, index);
                   }}
                   ref={view => {
@@ -130,12 +129,12 @@ export default class CreateCard extends React.Component {
                 >
                   <Card
                     flipToSideA={
-                      index === this.state.currentIndex &&
+                      index === currentlyViewedCard &&
                       this.state.flipCard &&
                       this.state.flipCard
                     }
                     flipToSideB={
-                      index === this.state.currentIndex &&
+                      index === currentlyViewedCard &&
                       !this.state.flipCard &&
                       !this.state.flipCard
                     }
