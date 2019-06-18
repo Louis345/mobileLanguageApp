@@ -20,24 +20,29 @@ export default class CreateCard extends React.Component {
   state = {
     isPanelOpen: false,
     flipCard: false,
-    flashCards: [''],
-    flashCardsPosition: [],
+    flashcards: [
+      {
+        isCardFlipped: false
+      }
+    ],
+    flashcardsPosition: [],
     offset: {},
     currentlyViewedCard: null
   };
   handleNewCard = () => {
-    const { currentlyViewedCard } = this.state;
-    const newFlashCards = [...this.state.flashCards];
-    newFlashCards.push('new Card');
+    const newFlashCards = [...this.state.flashcards];
+    newFlashCards.push({
+      isCardFlipped: false
+    });
     this.setState(
       {
-        flashCards: newFlashCards
+        flashcards: newFlashCards
       },
       () => {
         this.scroller.getNode().scrollTo({
           x:
             (SCREEN_WIDTH * 0.75 + cardMargin * 2) *
-            this.state.flashCardsPosition.length,
+            this.state.flashcardsPosition.length,
           y: 0,
           animated: true
         });
@@ -47,22 +52,35 @@ export default class CreateCard extends React.Component {
 
   handleLayoutChange(event, index) {
     this.feedPost.measure((fx, fy, width, height, px, py) => {
-      const newFlashCardPosition = [...this.state.flashCardsPosition];
+      const newFlashCardPosition = [...this.state.flashcardsPosition];
       newFlashCardPosition.push(fx);
       this.setState({
-        flashCardsPosition: newFlashCardPosition,
+        flashcardsPosition: newFlashCardPosition,
         currentlyViewedCard: index
       });
     });
   }
 
   handleOnScrollEndDrag = (targetContentOffset, event) => {
-    const { flashCardsPosition } = this.state;
+    const { flashcardsPosition } = this.state;
     const cardPosition = Math.round(
-      targetContentOffset / flashCardsPosition[1]
+      targetContentOffset / flashcardsPosition[1]
     );
     this.setState({
       currentlyViewedCard: cardPosition
+    });
+  };
+
+  handleCardFlip = () => {
+    const { flashcards, currentlyViewedCard } = this.state;
+    const updatedCards = flashcards.map((flashcard, index) => {
+      if (currentlyViewedCard === index) {
+        flashcard.isCardFlipped = !flashcard.isCardFlipped;
+      }
+      return flashcard;
+    });
+    this.setState({
+      flashcards: updatedCards
     });
   };
 
@@ -72,10 +90,9 @@ export default class CreateCard extends React.Component {
         Dimensions.get('window').height -
         Dimensions.get('window').height * -0.05
     };
-    console.log(Dimensions.get('window').width);
-    console.log(this.state.flashCardsPosition);
-    const { flashCards, currentlyViewedCard } = this.state;
-    console.log(this.state.flashCards.length === 1);
+
+    const { flashcards, currentlyViewedCard } = this.state;
+    console.log(flashcards);
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={styles.container}>
@@ -115,7 +132,8 @@ export default class CreateCard extends React.Component {
             }}
             scrollEventThrottle={16}
           >
-            {flashCards.map((flashcard, index) => {
+            {flashcards.map((flashcard, index) => {
+              console.log(flashcard.isCardFlipped);
               return (
                 <View
                   style={styles.contentContainer}
@@ -130,13 +148,13 @@ export default class CreateCard extends React.Component {
                   <Card
                     flipToSideA={
                       index === currentlyViewedCard &&
-                      this.state.flipCard &&
-                      this.state.flipCard
+                      flashcard.isCardFlipped &&
+                      flashcard.isCardFlipped
                     }
                     flipToSideB={
                       index === currentlyViewedCard &&
-                      !this.state.flipCard &&
-                      !this.state.flipCard
+                      !flashcard.isCardFlipped &&
+                      !flashcard.isCardFlipped
                     }
                     width={SCREEN_WIDTH * 0.75}
                     style={{ height: 250 }}
@@ -185,10 +203,7 @@ export default class CreateCard extends React.Component {
             />
           </View>
         </ActionSheet>
-        <Button
-          title={'Flip'}
-          onPress={() => this.setState({ flipCard: !this.state.flipCard })}
-        />
+        <Button title={'Flip'} onPress={() => this.handleCardFlip()} />
       </SafeAreaView>
     );
   }
