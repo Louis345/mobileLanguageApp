@@ -6,11 +6,12 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Dimensions,
-  Animated
+  Animated,
+  Keyboard
 } from 'react-native';
 import Card from '../components/Card/Card';
 import ActionSheet from '../components/ActionSheet/ActionSheet';
-import { buttonColors } from '../styles/styles';
+import { lightBlue } from '../styles/styles';
 import { Input, Button } from 'react-native-elements';
 import { Entypo } from '@expo/vector-icons';
 import { cardMargin } from '../styles/styles';
@@ -22,17 +23,23 @@ export default class CreateCard extends React.Component {
     flipCard: false,
     flashcards: [
       {
-        isCardFlipped: false
+        isCardFlipped: false,
+        front: '',
+        back: ''
       }
     ],
     flashcardsPosition: [],
     offset: {},
-    currentlyViewedCard: null
+    currentlyViewedCard: 0,
+    isCardFlipped: false,
+    userInput: ''
   };
   handleNewCard = () => {
     const newFlashCards = [...this.state.flashcards];
     newFlashCards.push({
-      isCardFlipped: false
+      isCardFlipped: false,
+      front: '',
+      back: ''
     });
     this.setState(
       {
@@ -61,13 +68,25 @@ export default class CreateCard extends React.Component {
     });
   }
 
+  handleInputChange = userInput => {
+    this.setState({
+      userInput
+    });
+  };
+
   handleOnScrollEndDrag = (targetContentOffset, event) => {
-    const { flashcardsPosition } = this.state;
+    const { flashcardsPosition, flashcards, currentlyViewedCard } = this.state;
     const cardPosition = Math.round(
       targetContentOffset / flashcardsPosition[1]
     );
+    console.log('cardPosition', Number.isNaN(cardPosition));
+    const cardNumber =
+      Number.isNaN(cardPosition) || cardPosition >= flashcardsPosition.length
+        ? flashcardsPosition.length - 1
+        : cardPosition;
+    console.log('cardNumber set by me', cardNumber);
     this.setState({
-      currentlyViewedCard: cardPosition
+      currentlyViewedCard: cardNumber
     });
   };
 
@@ -80,8 +99,28 @@ export default class CreateCard extends React.Component {
       return flashcard;
     });
     this.setState({
-      flashcards: updatedCards
+      flashcards: updatedCards,
+      isCardFlipped: !this.state.isCardFlipped
     });
+  };
+
+  handleOnSave = cardFacingPosition => {
+    const { flashcards, currentlyViewedCard, userInput } = this.state;
+    const updatedCards = flashcards.map((flashcard, index) => {
+      if (currentlyViewedCard === index) {
+        flashcard[cardFacingPosition] = userInput;
+      }
+      return flashcard;
+    });
+    this.setState(
+      {
+        flashcards: updatedCards,
+        userInput: ''
+      },
+      () => {
+        Keyboard.dismiss();
+      }
+    );
   };
 
   render() {
@@ -91,19 +130,24 @@ export default class CreateCard extends React.Component {
         Dimensions.get('window').height * -0.05
     };
 
-    const { flashcards, currentlyViewedCard } = this.state;
-    console.log(flashcards);
+    const { flashcards, currentlyViewedCard, userInput } = this.state;
+    const cardFacingPosition = flashcards[
+      currentlyViewedCard ? currentlyViewedCard : 0
+    ].isCardFlipped
+      ? 'back'
+      : 'front';
+
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={styles.container}>
           <View>
-            <Text>Delete Card</Text>
+            <Text style={styles.headerText}>Delete Card</Text>
           </View>
           <View>
-            <Text>{`${currentlyViewedCard} - Front`}</Text>
+            <Text>{`${currentlyViewedCard + 1} - ${cardFacingPosition}`}</Text>
           </View>
           <View>
-            <Text>Done</Text>
+            <Text style={styles.headerText}>Done</Text>
           </View>
         </View>
         <View style={styles.bodyContainer}>
@@ -133,7 +177,6 @@ export default class CreateCard extends React.Component {
             scrollEventThrottle={16}
           >
             {flashcards.map((flashcard, index) => {
-              console.log(flashcard.isCardFlipped);
               return (
                 <View
                   style={styles.contentContainer}
@@ -145,24 +188,35 @@ export default class CreateCard extends React.Component {
                   }}
                   key={index}
                 >
-                  <Card
-                    flipToSideA={
-                      index === currentlyViewedCard &&
-                      flashcard.isCardFlipped &&
-                      flashcard.isCardFlipped
-                    }
-                    flipToSideB={
-                      index === currentlyViewedCard &&
-                      !flashcard.isCardFlipped &&
-                      !flashcard.isCardFlipped
-                    }
-                    width={SCREEN_WIDTH * 0.75}
-                    style={{ height: 250 }}
+                  <TouchableOpacity
+                    onPress={() => this.setState({ isPanelOpen: true })}
                   >
-                    <View>
-                      <Text>{index}</Text>
-                    </View>
-                  </Card>
+                    <Card
+                      flipToSideA={
+                        index === currentlyViewedCard &&
+                        flashcard.isCardFlipped &&
+                        flashcard.isCardFlipped
+                      }
+                      flipToSideB={
+                        index === currentlyViewedCard &&
+                        !flashcard.isCardFlipped &&
+                        !flashcard.isCardFlipped
+                      }
+                      width={SCREEN_WIDTH * 0.75}
+                      style={{ height: 250 }}
+                      SideB={
+                        flashcard.back === '' ? 'Enter Text' : flashcard.back
+                      }
+                    >
+                      <View>
+                        <Text>
+                          {flashcard.front === ''
+                            ? 'Enter Text'
+                            : flashcard.front}
+                        </Text>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
                 </View>
               );
             })}
@@ -172,14 +226,21 @@ export default class CreateCard extends React.Component {
                 width={SCREEN_WIDTH * 0.75}
                 style={{ height: 250, ...styles.placeHolder }}
               >
-                <Entypo name="plus" color={buttonColors} size={35} />
+                <Entypo name="plus" color={lightBlue} size={35} />
               </Card>
             </TouchableOpacity>
           </Animated.ScrollView>
         </View>
+        <Button
+          title={'Flip'}
+          color={'red'}
+          small
+          onPress={() => this.handleCardFlip()}
+        />
         <ActionSheet
           animatePanel={this.state.isPanelOpen}
           height={actionSheetHeight}
+          input={this}
         >
           <View style={[styles.createTitle]}>
             <View style={[styles.header, styles.center]}>
@@ -188,10 +249,16 @@ export default class CreateCard extends React.Component {
               </Text>
               <TouchableOpacity
                 onPress={() =>
-                  this.setState({
-                    isPanelOpen: false,
-                    isInputFocused: false
-                  })
+                  this.setState(
+                    {
+                      isPanelOpen: false,
+                      isInputFocused: false
+                    },
+                    () => {
+                      userInput.length > 0 &&
+                        this.handleOnSave(cardFacingPosition);
+                    }
+                  )
                 }
               >
                 <Text style={[styles.headerButtonText]}>Done</Text>
@@ -200,10 +267,16 @@ export default class CreateCard extends React.Component {
             <Input
               placeholder="Enter deck title"
               onChangeText={this.handleInputChange}
+              defaultValue={
+                flashcards[currentlyViewedCard] &&
+                flashcards[currentlyViewedCard][cardFacingPosition]
+              }
+              ref={ref => {
+                this.FirstInput = ref;
+              }}
             />
           </View>
         </ActionSheet>
-        <Button title={'Flip'} onPress={() => this.handleCardFlip()} />
       </SafeAreaView>
     );
   }
@@ -212,7 +285,11 @@ export default class CreateCard extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-evenly'
+  },
+  headerText: {
+    color: lightBlue,
+    fontWeight: 'bold'
   },
   bodyContainer: {
     alignItems: 'center'
@@ -226,7 +303,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   headerButtonText: {
-    color: buttonColors,
+    color: lightBlue,
     fontSize: 20,
     fontWeight: 'bold'
   },

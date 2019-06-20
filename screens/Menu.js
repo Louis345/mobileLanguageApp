@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, Text, Animated, View, StyleSheet } from 'react-native';
-import { menuHeader, buttonColors } from '../styles/styles';
+import { menuHeader, lightBlue } from '../styles/styles';
 import Card from '../components/Card/Card';
 import Decks from '../components/Card/card-fixture';
 import { onScroll } from '../util/animationHelper';
@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   menuLink: {
-    color: buttonColors,
+    color: lightBlue,
     fontSize: 15,
     fontWeight: 'bold',
     margin: 10

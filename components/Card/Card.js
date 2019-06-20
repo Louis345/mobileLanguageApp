@@ -76,7 +76,8 @@ export default class Card extends React.Component {
       children,
       flipToSideA,
       flipToSideB,
-      onPress
+      onPress,
+      SideB
     } = this.props;
 
     flipToSideA && this.flipToSideA();
@@ -105,7 +106,7 @@ export default class Card extends React.Component {
             this.backAnimatedStyles
           ]}
         >
-          <Text>Back</Text>
+          {SideB && <Text>{SideB}</Text>}
         </Animated.View>
       </View>
     );

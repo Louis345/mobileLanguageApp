@@ -13,6 +13,15 @@ export default class ActionSheet extends React.Component {
     animation: new Animated.Value(0)
   };
 
+  componentDidUpdate() {
+    const {
+      input: { FirstInput },
+      animatePanel
+    } = this.props;
+
+    animatePanel && FirstInput.focus();
+  }
+
   openPanel = () => {
     Animated.timing(this.state.animation, {
       toValue: 1,
@@ -30,8 +39,14 @@ export default class ActionSheet extends React.Component {
   };
 
   render() {
-    const { animatePanel, height } = this.props;
+    const {
+      animatePanel,
+      height,
+      input: { FirstInput }
+    } = this.props;
     animatePanel ? this.openPanel() : this.closePanel();
+
+    animatePanel && FirstInput.focus();
     const animatedStyles = {
       transform: [
         {

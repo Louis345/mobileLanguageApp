@@ -8,7 +8,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { Input, Button } from 'react-native-elements';
-import { buttonColors, cardBoxShadow } from '../styles/styles';
+import { lightBlue, cardBoxShadow } from '../styles/styles';
 import { Entypo } from '@expo/vector-icons';
 import Card from '../components/Card/Card';
 import ActionSheet from '../components/ActionSheet/ActionSheet';
@@ -85,7 +85,7 @@ export default class CreateDeck extends React.Component {
             <Card
               style={{ height: 300, width: 250, borderRadius: 20, margin: 0 }}
             >
-              <Entypo name="plus" color={buttonColors} size={35} />
+              <Entypo name="plus" color={lightBlue} size={35} />
             </Card>
           </TouchableOpacity>
         </View>
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
     marginLeft: 10
   },
   headerButtonText: {
-    color: buttonColors,
+    color: lightBlue,
     fontSize: 20,
     fontWeight: 'bold'
   },
