@@ -61,6 +61,9 @@ export default class CreateCard extends React.Component {
     this.feedPost.measure((fx, fy, width, height, px, py) => {
       const newFlashCardPosition = [...this.state.flashcardsPosition];
       newFlashCardPosition.push(fx);
+      if (newFlashCardPosition[0] !== 0) {
+        newFlashCardPosition.unshift(0);
+      }
       this.setState({
         flashcardsPosition: newFlashCardPosition,
         currentlyViewedCard: index
@@ -76,15 +79,25 @@ export default class CreateCard extends React.Component {
 
   handleOnScrollEndDrag = (targetContentOffset, event) => {
     const { flashcardsPosition, flashcards, currentlyViewedCard } = this.state;
+    if (flashcardsPosition[0] !== 0) {
+      console.log('on drag');
+      flashcardsPosition.unshift(0);
+    }
     const cardPosition = Math.round(
       targetContentOffset / flashcardsPosition[1]
     );
-    console.log('cardPosition', Number.isNaN(cardPosition));
-    const cardNumber =
+
+    let cardNumber =
       Number.isNaN(cardPosition) || cardPosition >= flashcardsPosition.length
         ? flashcardsPosition.length - 1
         : cardPosition;
-    console.log('cardNumber set by me', cardNumber);
+    if (cardNumber === flashcards.length) {
+      console.log('in if statement');
+      cardNumber -= 1;
+    }
+
+    console.log('setting card position', cardNumber);
+
     this.setState({
       currentlyViewedCard: cardNumber
     });
@@ -122,7 +135,42 @@ export default class CreateCard extends React.Component {
       }
     );
   };
-
+  handleOnCardDelete = () => {
+    const { flashcards, currentlyViewedCard, flashcardsPosition } = this.state;
+    let deletedCardIndex = null;
+    console.log(currentlyViewedCard);
+    console.log(flashcards);
+    const updatedCards = flashcards.filter((flashcard, index) => {
+      if (currentlyViewedCard !== index) {
+        return flashcard;
+      } else {
+        deletedCardIndex = index;
+      }
+    });
+    console.log('updatedCards', updatedCards);
+    for (let i = 0; i < flashcardsPosition.length; i++) {
+      if (i === deletedCardIndex) {
+        flashcardsPosition.splice(i, 1);
+      }
+    }
+    console.log(deletedCardIndex);
+    console.log(flashcardsPosition);
+    console.log(flashcards);
+    this.setState(
+      {
+        currentlyViewedCard: deletedCardIndex - 1,
+        flashcards: updatedCards,
+        flashcardsPosition
+      },
+      () => {
+        this.scroller.getNode().scrollTo({
+          x: flashcardsPosition[this.state.currentlyViewedCard],
+          y: 0,
+          animated: true
+        });
+      }
+    );
+  };
   render() {
     const actionSheetHeight = {
       top:
@@ -131,18 +179,18 @@ export default class CreateCard extends React.Component {
     };
 
     const { flashcards, currentlyViewedCard, userInput } = this.state;
+
     const cardFacingPosition = flashcards[
       currentlyViewedCard ? currentlyViewedCard : 0
     ].isCardFlipped
       ? 'back'
       : 'front';
-
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={styles.container}>
-          <View>
+          <TouchableOpacity onPress={this.handleOnCardDelete}>
             <Text style={styles.headerText}>Delete Card</Text>
-          </View>
+          </TouchableOpacity>
           <View>
             <Text>{`${currentlyViewedCard + 1} - ${cardFacingPosition}`}</Text>
           </View>
