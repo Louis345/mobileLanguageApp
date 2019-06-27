@@ -1,5 +1,5 @@
-import { StyleSheet } from 'react-native';
-
+import { StyleSheet, Dimensions } from 'react-native';
+const SCREEN_WIDTH = Dimensions.get('window').width;
 export const menuHeader = '#FFDA39';
 export const lightBlue = '#80BFE0';
 export const linkFontSize = 15;
@@ -10,3 +10,5 @@ export const cardBoxShadow = {
 };
 
 export const cardMargin = 15;
+
+export const cardWidth = SCREEN_WIDTH * 0.65;

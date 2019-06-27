@@ -124,7 +124,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowRadius: 2,
     margin: cardMargin,
-    backfaceVisibility: 'hidden'
+    backfaceVisibility: 'hidden',
+    borderRadius: 20
   },
   back: {
     position: 'absolute',
