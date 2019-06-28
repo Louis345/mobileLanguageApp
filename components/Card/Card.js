@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, Animated } from 'react-native';
-import { cardMargin } from '../../styles/styles.js';
+import { cardMargin, lightBlue } from '../../styles/styles.js';
+import Dash from 'react-native-dash';
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const transitionAnimation = (index, xOffset) => {

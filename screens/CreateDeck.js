@@ -95,6 +95,7 @@ export default class CreateDeck extends React.Component {
         <ActionSheet
           animatePanel={this.state.openActionSheet}
           height={actionSheetHeight}
+          input={this}
         >
           <View style={[styles.createTitle]}>
             <View style={[styles.header, styles.center]}>
@@ -116,6 +117,9 @@ export default class CreateDeck extends React.Component {
               <Input
                 placeholder="Enter deck title"
                 onChangeText={this.handleInputChange}
+                ref={ref => {
+                  this.FirstInput = ref;
+                }}
               />
             </View>
           </View>

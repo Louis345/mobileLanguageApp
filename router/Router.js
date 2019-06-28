@@ -33,7 +33,7 @@ const fadeTransition = (index, position) => {
 };
 const stackNavigator = createStackNavigator(
   {
-    Home: CreateCard,
+    Home: Menu,
     Details: CreateCard
   },
   {

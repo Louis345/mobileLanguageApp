@@ -78,15 +78,13 @@ export default class CreateCard extends React.Component {
 
       let difference = Math.floor(Math.abs(current - next));
       counter++;
-      console.log('difference', difference);
+
       if (difference > mininumDifference) {
-        console.log('match', index);
         flaggedDifferenceIndex = index;
       }
     });
     if (flaggedDifferenceIndex) {
       removedPositions = flashcardsPosition.slice(0, flaggedDifferenceIndex);
-      console.log({ removedPositions });
 
       let lengthDifference =
         flashcardsPosition.length - removedPositions.length;
@@ -108,15 +106,10 @@ export default class CreateCard extends React.Component {
     } = this.state;
     this.feedPost.measure((fx, fy, width, height, px, py) => {
       const newFlashCardPosition = [...this.state.flashcardsPosition];
-      console.log({ removedFlascardPosition });
+
       const fixedArrayPositions =
         newFlashCardPosition.length > 2 && this.setArrayPositions();
-      console.log('new position', fx);
-      console.log('fixed', { fixedArrayPositions });
-      console.log(
-        'could possible add removed flashcard position',
-        removedFlascardPosition
-      );
+
       removedFlascardPosition
         ? newFlashCardPosition.push(removedFlascardPosition)
         : newFlashCardPosition.push(fx);
@@ -124,22 +117,17 @@ export default class CreateCard extends React.Component {
       fixedArrayPositions &&
         fixedArrayPositions.length > 0 &&
         fixedArrayPositions.push(fx);
-      console.log('removed flashcard position', fixedFlashcardPosition);
-      this.setState(
-        {
-          flashcardsPosition:
-            fixedArrayPositions &&
-            fixedArrayPositions.length > 0 &&
-            newFlashCardPosition
-              ? fixedArrayPositions.sort((a, b) => a - b)
-              : newFlashCardPosition.sort((a, b) => a - b),
-          currentlyViewedCard: index,
-          removedFlascardPosition: null
-        },
-        () => {
-          console.log('after sort', this.state.flashcardsPosition);
-        }
-      );
+
+      this.setState({
+        flashcardsPosition:
+          fixedArrayPositions &&
+          fixedArrayPositions.length > 0 &&
+          newFlashCardPosition
+            ? fixedArrayPositions.sort((a, b) => a - b)
+            : newFlashCardPosition.sort((a, b) => a - b),
+        currentlyViewedCard: index,
+        removedFlascardPosition: null
+      });
     });
   }
 
@@ -220,13 +208,13 @@ export default class CreateCard extends React.Component {
     );
 
     updatedFlashcardPosition.unshift(0);
-    console.log('', updatedFlashcardPosition);
+
     this.scroller.getNode().scrollTo({
       x: updatedFlashcardPosition[currentlyViewedCard - 1],
       y: 0,
       animated: true
     });
-    console.log('setting removed flashcard position', removedFlascardPosition);
+
     this.setState({
       flashcards: updatedCard,
       currentlyViewedCard: lastDeletedCardIndex - 1,
@@ -242,16 +230,25 @@ export default class CreateCard extends React.Component {
     };
 
     const { flashcards, currentlyViewedCard, userInput } = this.state;
+    const { navigation } = this.props;
     const cardFacingPosition = flashcards[
-      currentlyViewedCard ? currentlyViewedCard : 0
+      currentlyViewedCard > flashcards.length
+        ? currentlyViewedCard - 1
+        : currentlyViewedCard
     ].isCardFlipped
       ? 'back'
       : 'front';
-
+    console.log('currently viewed card', currentlyViewedCard);
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={styles.container}>
-          <TouchableOpacity onPress={this.handleDeleteCard}>
+          <TouchableOpacity
+            onPress={() =>
+              flashcards.length === 1
+                ? navigation.navigate('CreateDeck')
+                : this.handleDeleteCard()
+            }
+          >
             <Text style={styles.headerText}>Delete Card</Text>
           </TouchableOpacity>
           <View>
@@ -269,7 +266,6 @@ export default class CreateCard extends React.Component {
             ref={scroller => {
               this.scroller = scroller;
             }}
-            onLayout={width => console.log(width)}
             snapToAlignment={'center'}
             snapToInterval={cardWidth + cardMargin * 2}
             contentInset={{
@@ -289,6 +285,7 @@ export default class CreateCard extends React.Component {
             scrollEventThrottle={16}
           >
             {flashcards.map((flashcard, index) => {
+              console.log(flashcards[currentlyViewedCard][cardFacingPosition]);
               return (
                 <View
                   style={styles.contentContainer}
@@ -346,12 +343,7 @@ export default class CreateCard extends React.Component {
             </TouchableOpacity>
           </Animated.ScrollView>
         </View>
-        <Button
-          title={'Flip'}
-          color={'red'}
-          small
-          onPress={() => this.handleCardFlip()}
-        />
+        <Button title={'Flip'} small onPress={() => this.handleCardFlip()} />
         <ActionSheet
           animatePanel={this.state.isPanelOpen}
           height={actionSheetHeight}
@@ -379,17 +371,19 @@ export default class CreateCard extends React.Component {
                 <Text style={[styles.headerButtonText]}>Done</Text>
               </TouchableOpacity>
             </View>
+
             <Input
-              placeholder="Enter deck title"
+              placeholder="Type something"
               onChangeText={this.handleInputChange}
               defaultValue={
-                flashcards[currentlyViewedCard]
-                  ? flashcards[currentlyViewedCard][cardFacingPosition]
-                  : null
+                flashcards[currentlyViewedCard] &&
+                flashcards[currentlyViewedCard][cardFacingPosition]
               }
               ref={ref => {
                 this.FirstInput = ref;
               }}
+              multiline={true}
+              numberOfLines={4}
             />
           </View>
         </ActionSheet>

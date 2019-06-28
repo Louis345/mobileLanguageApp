@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   headerContainer: {
-    backgroundColor: menuHeader,
+    backgroundColor: lightBlue,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     flex: 1.2,
