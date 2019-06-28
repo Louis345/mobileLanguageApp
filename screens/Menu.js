@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { SafeAreaView, Text, Animated, View, StyleSheet } from 'react-native';
 import { menuHeader, lightBlue } from '../styles/styles';
 import Card from '../components/Card/Card';
@@ -9,6 +9,7 @@ const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
 
 const Menu = () => {
+  const [counter, setCOunter] = useState(0);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
