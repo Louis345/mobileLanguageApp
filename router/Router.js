@@ -33,7 +33,7 @@ const fadeTransition = (index, position) => {
 };
 const stackNavigator = createStackNavigator(
   {
-    Home: Menu,
+    Home: CreateCard,
     Details: CreateCard
   },
   {
@@ -51,9 +51,7 @@ const bottomNavigator = createBottomTabNavigator({
     navigationOptions: ({ navigation }) => ({
       title: 'Home',
       tabBarPosition: 'bottom',
-      tabBarIcon: ({ tintColor }) => (
-        <AntDesign name={'plus'} onPress={() => navigation.navigate('Menu')} />
-      )
+      tabBarIcon: ({ tintColor }) => <AntDesign name={'plus'} />
     })
   },
   CreateDeck: {
@@ -62,13 +60,12 @@ const bottomNavigator = createBottomTabNavigator({
     navigationOptions: ({ navigation }) => ({
       tabBarPosition: 'bottom',
       title: 'Create Deck',
-      tabBarIcon: ({ tintColor }) => (
-        <AntDesign name={'plus'} onPress={() => console.log(navigation)} />
-      )
+      tabBarIcon: ({ tintColor }) => <AntDesign name={'plus'} />
     })
   },
   Profile: {
     screen: Profile,
+    animationEnabled: true,
     navigationOptions: ({ navigation }) => ({
       tabBarPosition: 'bottom',
       title: 'Profile',

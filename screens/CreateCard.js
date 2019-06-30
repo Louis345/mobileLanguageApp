@@ -15,8 +15,8 @@ import { lightBlue, cardWidth } from '../styles/styles';
 import { Input, Button } from 'react-native-elements';
 import { Entypo } from '@expo/vector-icons';
 import { cardMargin } from '../styles/styles';
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
+const cardWithPadding = cardWidth + cardMargin * 2;
 export default class CreateCard extends React.Component {
   constructor() {
     super();
@@ -37,10 +37,10 @@ export default class CreateCard extends React.Component {
     offset: {},
     currentlyViewedCard: 0,
     isCardFlipped: false,
-    userInput: '',
-    minimumDifference: 0
+    userInput: ''
   };
   handleNewCard = () => {
+    const { flashcardsPosition, flashcards } = this.state;
     const newFlashCards = [...this.state.flashcards];
     newFlashCards.push({
       isCardFlipped: false,
@@ -53,8 +53,7 @@ export default class CreateCard extends React.Component {
       },
       () => {
         this.scroller.getNode().scrollTo({
-          x:
-            (cardWidth + cardMargin * 2) * this.state.flashcardsPosition.length,
+          x: flashcards.length * cardWithPadding,
           y: 0,
           animated: true
         });
@@ -62,71 +61,33 @@ export default class CreateCard extends React.Component {
     );
   };
 
-  setArrayPositions = () => {
-    const { flashcardsPosition } = this.state;
-    let counter = 1;
-    let mininumDifference = flashcardsPosition[1];
-    let flaggedDifferenceIndex = null;
-    let previous = null;
-    let current = null;
-    let next = null;
+  setArrayPositions = flashcardsPosition => {
+    let placeHolder = 0;
 
-    flashcardsPosition.forEach((position, index) => {
-      previous = flashcardsPosition[index - 1];
-      current = flashcardsPosition[index];
-      next = flashcardsPosition[index + 1];
-
-      let difference = Math.floor(Math.abs(current - next));
-      counter++;
-
-      if (difference > mininumDifference) {
-        flaggedDifferenceIndex = index;
+    const updatedArr = flashcardsPosition.map((position, index) => {
+      if (position === 0) {
+        return 0;
+      } else if (placeHolder === 0) {
+        placeHolder += cardWithPadding;
+        return placeHolder;
+      } else {
+        placeHolder += cardWithPadding;
+        return placeHolder;
       }
     });
-    if (flaggedDifferenceIndex) {
-      removedPositions = flashcardsPosition.slice(0, flaggedDifferenceIndex);
 
-      let lengthDifference =
-        flashcardsPosition.length - removedPositions.length;
-
-      for (let i = 0; i < lengthDifference; i++) {
-        removedPositions.push(
-          removedPositions[removedPositions.length - 1] + mininumDifference
-        );
-      }
-      return removedPositions;
-    }
+    return updatedArr;
   };
+
   handleLayoutChange(event, index) {
-    const {
-      minimumDifference,
-      currentlyViewedCard,
-      removedFlascardPosition,
-      fixedFlashcardPosition
-    } = this.state;
     this.feedPost.measure((fx, fy, width, height, px, py) => {
       const newFlashCardPosition = [...this.state.flashcardsPosition];
 
-      const fixedArrayPositions =
-        newFlashCardPosition.length > 2 && this.setArrayPositions();
-
-      removedFlascardPosition
-        ? newFlashCardPosition.push(removedFlascardPosition)
-        : newFlashCardPosition.push(fx);
-
-      fixedArrayPositions &&
-        fixedArrayPositions.length > 0 &&
-        fixedArrayPositions.push(fx);
+      newFlashCardPosition.push(fx);
 
       this.setState({
-        flashcardsPosition:
-          fixedArrayPositions &&
-          fixedArrayPositions.length > 0 &&
-          newFlashCardPosition
-            ? fixedArrayPositions.sort((a, b) => a - b)
-            : newFlashCardPosition.sort((a, b) => a - b),
-        currentlyViewedCard: index,
-        removedFlascardPosition: null
+        flashcardsPosition: [...newFlashCardPosition],
+        currentlyViewedCard: index
       });
     });
   }
@@ -138,17 +99,16 @@ export default class CreateCard extends React.Component {
   };
 
   handleOnScrollEndDrag = (targetContentOffset, event) => {
-    const { flashcardsPosition, flashcards, currentlyViewedCard } = this.state;
-    const cardPosition = Math.round(
-      targetContentOffset / flashcardsPosition[1]
-    );
+    const { flashcardsPosition } = this.state;
 
+    const cardPosition = Math.round(targetContentOffset / cardWithPadding);
     const cardNumber =
       Number.isNaN(cardPosition) || cardPosition >= flashcardsPosition.length
         ? flashcardsPosition.length - 1
         : cardPosition;
 
     this.setState({
+      cardNumber,
       currentlyViewedCard: cardNumber
     });
   };
@@ -188,8 +148,9 @@ export default class CreateCard extends React.Component {
 
   handleDeleteCard = () => {
     const { flashcards, currentlyViewedCard, flashcardsPosition } = this.state;
+
     let lastDeletedCardIndex = null;
-    let removedFlascardPosition = null;
+
     const updatedCard = flashcards.filter((flashcard, index) => {
       if (currentlyViewedCard != index) {
         return flashcards;
@@ -197,7 +158,8 @@ export default class CreateCard extends React.Component {
         lastDeletedCardIndex = index;
       }
     });
-    const updatedFlashcardPosition = this.state.flashcardsPosition.filter(
+
+    const updatedFlashcardPosition = flashcardsPosition.filter(
       (position, index) => {
         if (index !== lastDeletedCardIndex) {
           return position;
@@ -209,19 +171,31 @@ export default class CreateCard extends React.Component {
 
     updatedFlashcardPosition.unshift(0);
 
+    const fixedArrayPositions = this.setArrayPositions(
+      updatedFlashcardPosition
+    );
+
     this.scroller.getNode().scrollTo({
-      x: updatedFlashcardPosition[currentlyViewedCard - 1],
+      x:
+        fixedArrayPositions[
+          currentlyViewedCard === 0
+            ? currentlyViewedCard
+            : currentlyViewedCard - 1
+        ],
       y: 0,
       animated: true
     });
 
     this.setState({
       flashcards: updatedCard,
-      currentlyViewedCard: lastDeletedCardIndex - 1,
-      flashcardsPosition: updatedFlashcardPosition,
-      removedFlascardPosition
+      currentlyViewedCard:
+        currentlyViewedCard === 0
+          ? currentlyViewedCard
+          : currentlyViewedCard - 1,
+      flashcardsPosition: fixedArrayPositions
     });
   };
+
   render() {
     const actionSheetHeight = {
       top:
@@ -229,16 +203,27 @@ export default class CreateCard extends React.Component {
         Dimensions.get('window').height * -0.05
     };
 
-    const { flashcards, currentlyViewedCard, userInput } = this.state;
+    const {
+      flashcards,
+      currentlyViewedCard,
+      userInput,
+      cardNumber,
+      flashcardsPosition
+    } = this.state;
     const { navigation } = this.props;
-    const cardFacingPosition = flashcards[
-      currentlyViewedCard > flashcards.length
-        ? currentlyViewedCard - 1
-        : currentlyViewedCard
-    ].isCardFlipped
-      ? 'back'
-      : 'front';
-    console.log('currently viewed card', currentlyViewedCard);
+
+    let cardFacingPosition = null;
+
+    if (flashcards[currentlyViewedCard]) {
+      cardFacingPosition = flashcards[currentlyViewedCard].isCardFlipped
+        ? 'back'
+        : 'front';
+    } else {
+      cardFacingPosition = flashcards[currentlyViewedCard - 1].isCardFlipped
+        ? 'back'
+        : 'front';
+    }
+
     return (
       <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
         <View style={styles.container}>
@@ -252,7 +237,11 @@ export default class CreateCard extends React.Component {
             <Text style={styles.headerText}>Delete Card</Text>
           </TouchableOpacity>
           <View>
-            <Text>{`${currentlyViewedCard} - ${cardFacingPosition}`}</Text>
+            <Text>{`${
+              currentlyViewedCard > flashcards.length
+                ? currentlyViewedCard - 1
+                : currentlyViewedCard
+            } - ${cardFacingPosition}`}</Text>
           </View>
           <View>
             <Text style={styles.headerText}>Done</Text>
@@ -267,7 +256,7 @@ export default class CreateCard extends React.Component {
               this.scroller = scroller;
             }}
             snapToAlignment={'center'}
-            snapToInterval={cardWidth + cardMargin * 2}
+            snapToInterval={cardWithPadding}
             contentInset={{
               top: 0,
               left: 0,
@@ -285,7 +274,6 @@ export default class CreateCard extends React.Component {
             scrollEventThrottle={16}
           >
             {flashcards.map((flashcard, index) => {
-              console.log(flashcards[currentlyViewedCard][cardFacingPosition]);
               return (
                 <View
                   style={styles.contentContainer}
@@ -303,11 +291,13 @@ export default class CreateCard extends React.Component {
                     <Card
                       flipToSideA={
                         index === currentlyViewedCard &&
+                        flashcard &&
                         flashcard.isCardFlipped &&
                         flashcard.isCardFlipped
                       }
                       flipToSideB={
                         index === currentlyViewedCard &&
+                        flashcard &&
                         !flashcard.isCardFlipped &&
                         !flashcard.isCardFlipped
                       }
