@@ -237,7 +237,11 @@ export default class CreateCard extends React.Component {
             <Text style={styles.headerText}>Delete Card</Text>
           </TouchableOpacity>
           <View>
-            <Text>{`${currentlyViewedCard} - ${cardFacingPosition}`}</Text>
+            <Text>{`${
+              currentlyViewedCard > flashcards.length
+                ? currentlyViewedCard - 1
+                : currentlyViewedCard
+            } - ${cardFacingPosition}`}</Text>
           </View>
           <View>
             <Text style={styles.headerText}>Done</Text>
