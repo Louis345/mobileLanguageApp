@@ -1,18 +1,10 @@
 import React from 'react';
-import {
-  SafeAreaView,
-  Text,
-  Animated,
-  View,
-  StyleSheet,
-  Dimensions
-} from 'react-native';
-import { menuHeader, buttonColors } from '../styles/styles';
+import { SafeAreaView, Text, Animated, View, StyleSheet } from 'react-native';
+import { menuHeader, lightBlue } from '../styles/styles';
 import Card from '../components/Card/Card';
 import Decks from '../components/Card/card-fixture';
 import { onScroll } from '../util/animationHelper';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
 
@@ -81,7 +73,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   headerContainer: {
-    backgroundColor: menuHeader,
+    backgroundColor: lightBlue,
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     flex: 1.2,
@@ -89,7 +81,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   menuLink: {
-    color: buttonColors,
+    color: lightBlue,
     fontSize: 15,
     fontWeight: 'bold',
     margin: 10
