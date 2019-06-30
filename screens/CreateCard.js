@@ -53,10 +53,7 @@ export default class CreateCard extends React.Component {
       },
       () => {
         this.scroller.getNode().scrollTo({
-          x:
-            flashcardsPosition.length > flashcards.length
-              ? cardWithPadding * (flashcardsPosition.length - 1)
-              : cardWithPadding * flashcardsPosition.length,
+          x: flashcards.length * cardWithPadding,
           y: 0,
           animated: true
         });
