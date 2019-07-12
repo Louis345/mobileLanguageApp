@@ -2,39 +2,58 @@ import React from 'react';
 import {
   createStackNavigator,
   createAppContainer,
-  createBottomTabNavigator
+  createBottomTabNavigator,
+  createMaterialTopTabNavigator
 } from 'react-navigation';
+
+import { lightBlue, menuHeader } from '../styles/styles';
 import Menu from '../screens/Menu';
 import Profile from '../screens/Profile';
 import CreateDeck from '../screens/CreateDeck';
 import CreateCard from '../screens/CreateCard';
-import { AntDesign, FontAwesome } from '@expo/vector-icons';
-const navigationConfig = () => {
-  return {
-    screenInterpolator: sceneProps => {
-      const position = sceneProps.position;
-      const scene = sceneProps.scene;
-      const index = scene.index;
-      return fadeTransition(index, position);
-    }
-  };
-};
+import QRScanner from '../screens/QRScanner';
+import Card from '../screens/Cards';
+import LessonsMenu from '../screens/LessonsMenu';
 
-const fadeTransition = (index, position) => {
-  const sceneRange = [index - 1, index];
-  const outPutRangeOpacity = [0, 1];
-  const transition = position.interpolate({
-    inputRange: sceneRange,
-    outPutRange: outPutRangeOpacity
-  });
-  return {
-    opacity: transition
-  };
-};
+import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
+
+const topNavigator = createMaterialTopTabNavigator(
+  {
+    Lessons: {
+      screen: LessonsMenu
+    },
+    Cards: {
+      screen: Card
+    },
+    Quiz: {
+      screen: LessonsMenu
+    }
+  },
+  {
+    tabBarOptions: {
+      activeTintColor: '#32CDFF',
+      inactiveTintColor: '#ddd',
+      style: {
+        backgroundColor: 'white'
+      },
+      indicatorStyle: {
+        backgroundColor: '#32CDFF'
+      },
+      labelStyle: {
+        fontSize: 15,
+        fontWeight: 'bold'
+      }
+    }
+  }
+);
+
 const stackNavigator = createStackNavigator(
   {
-    Home: CreateCard,
-    Details: CreateCard
+    Home: Menu,
+    Details: CreateCard,
+    LessonsMenu: {
+      screen: topNavigator
+    }
   },
   {
     headerMode: 'none',
@@ -51,6 +70,10 @@ const bottomNavigator = createBottomTabNavigator({
     navigationOptions: ({ navigation }) => ({
       title: 'Home',
       tabBarPosition: 'bottom',
+      tabBarOnPress: ({ navigation, defaultHandler }) => {
+        navigation.navigate('Home');
+        defaultHandler();
+      },
       tabBarIcon: ({ tintColor }) => <AntDesign name={'plus'} />
     })
   },
@@ -60,6 +83,11 @@ const bottomNavigator = createBottomTabNavigator({
     navigationOptions: ({ navigation }) => ({
       tabBarPosition: 'bottom',
       title: 'Create Deck',
+      tabBarPosition: 'bottom',
+      tabBarOnPress: ({ navigation, defaultHandler }) => {
+        navigation.navigate('CreateDeck');
+        defaultHandler();
+      },
       tabBarIcon: ({ tintColor }) => <AntDesign name={'plus'} />
     })
   },
@@ -70,6 +98,15 @@ const bottomNavigator = createBottomTabNavigator({
       tabBarPosition: 'bottom',
       title: 'Profile',
       tabBarIcon: ({ tintColor }) => <FontAwesome name={'user'} />
+    })
+  },
+  Scan: {
+    screen: QRScanner,
+    animationEnabled: true,
+    navigationOptions: ({ navigation }) => ({
+      tabBarPosition: 'bottom',
+      title: 'Scan',
+      tabBarIcon: ({ tintColor }) => <Ionicons name={'ios-qr-scanner'} />
     })
   }
 });

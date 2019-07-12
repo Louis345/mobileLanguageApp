@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
-import { SafeAreaView, Text, Animated, View, StyleSheet } from 'react-native';
-import { menuHeader, lightBlue } from '../styles/styles';
+import {
+  SafeAreaView,
+  Text,
+  Animated,
+  View,
+  StyleSheet,
+  TouchableOpacity
+} from 'react-native';
+import { lightBlue } from '../styles/styles';
 import Card from '../components/Card/Card';
 import Decks from '../components/Card/card-fixture';
 import { onScroll } from '../util/animationHelper';
@@ -8,8 +15,7 @@ import { onScroll } from '../util/animationHelper';
 const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
 
-const Menu = () => {
-  const [counter, setCOunter] = useState(0);
+const Menu = props => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.headerContainer}>
@@ -29,13 +35,17 @@ const Menu = () => {
         >
           {Decks.map((Deck, index) => {
             return (
-              <View key={index}>
-                <Card
-                  title={Deck.title}
-                  position={index}
-                  xOffset={yourDeckXOffset}
-                />
-              </View>
+              <TouchableOpacity
+                onPress={() => props.navigation.navigate('LessonsMenu')}
+              >
+                <View key={index}>
+                  <Card
+                    title={Deck.title}
+                    position={index}
+                    xOffset={yourDeckXOffset}
+                  />
+                </View>
+              </TouchableOpacity>
             );
           })}
         </Animated.ScrollView>

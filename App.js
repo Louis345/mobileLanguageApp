@@ -1,10 +1,14 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, SafeAreaView } from 'react-native';
 import Router from './router/Router';
 
 export default class App extends React.Component {
   render() {
-    return <Router />;
+    return (
+      <SafeAreaView style={{ flex: 1 }}>
+        <Router />
+      </SafeAreaView>
+    );
   }
 }
 

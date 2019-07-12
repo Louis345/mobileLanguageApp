@@ -30,6 +30,21 @@ export default class CreateCard extends React.Component {
         isCardFlipped: false,
         front: '',
         back: ''
+      },
+      {
+        isCardFlipped: false,
+        front: '',
+        back: ''
+      },
+      {
+        isCardFlipped: false,
+        front: '',
+        back: ''
+      },
+      {
+        isCardFlipped: false,
+        front: '',
+        back: ''
       }
     ],
     flashcardsPosition: [],
@@ -67,9 +82,6 @@ export default class CreateCard extends React.Component {
     const updatedArr = flashcardsPosition.map((position, index) => {
       if (position === 0) {
         return 0;
-      } else if (placeHolder === 0) {
-        placeHolder += cardWithPadding;
-        return placeHolder;
       } else {
         placeHolder += cardWithPadding;
         return placeHolder;
