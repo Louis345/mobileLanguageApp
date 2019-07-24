@@ -1,79 +1,117 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   SafeAreaView,
   Text,
   Animated,
   View,
   StyleSheet,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
-import { lightBlue } from '../styles/styles';
-import Card from '../components/Card/Card';
-import Decks from '../components/Card/card-fixture';
-import { onScroll } from '../util/animationHelper';
 
+import Card from '../components/Card/Card';
+import { onScroll } from '../util/animationHelper';
+import AsyncStorage from '../util/fetchData';
+import { lightBlue, cardWidth, cardMargin } from '../styles/styles';
 const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
+const cardWithPadding = cardWidth + cardMargin * 2;
+export default class Menu extends React.PureComponent {
+  state = {
+    deckList: []
+  };
+  async componentDidMount() {
+    this.focusListener = this.props.navigation.addListener('didFocus', () => {
+      this.onFocusFunction();
+    });
+  }
 
-const Menu = props => {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.headerContainer}>
-        <Text style={styles.decksToReview}>Decks To Review</Text>
-      </View>
-      <Animated.ScrollView>
-        <View style={styles.menuContainer}>
-          <Text style={styles.menuLink}>Your Deck</Text>
-          <Text style={styles.menuLink}>See All</Text>
+  onFocusFunction = async () => {
+    const deckList = await AsyncStorage.getDecks();
+    this.setState({
+      deckList
+    });
+  };
+
+  componentWillUnmount() {
+    this.focusListener.remove();
+  }
+  render() {
+    const { deckList } = this.state;
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.decksToReview}>Decks To Review</Text>
         </View>
-        <Animated.ScrollView
-          scrollEventThrottle={16}
-          onScroll={onScroll(yourDeckXOffset)}
-          horizontal
-          pagingEnabled
-          style={styles.scrollView}
-        >
-          {Decks.map((Deck, index) => {
-            return (
-              <TouchableOpacity
-                onPress={() => props.navigation.navigate('LessonsMenu')}
-              >
-                <View key={index}>
-                  <Card
-                    title={Deck.title}
-                    position={index}
-                    xOffset={yourDeckXOffset}
-                  />
-                </View>
-              </TouchableOpacity>
-            );
-          })}
+        <Animated.ScrollView>
+          <View style={styles.menuContainer}>
+            <Text style={styles.menuLink}>Your Deck</Text>
+            <Text style={styles.menuLink}>See All</Text>
+          </View>
+          <Animated.ScrollView
+            scrollEventThrottle={16}
+            onScroll={onScroll(yourDeckXOffset)}
+            horizontal
+            pagingEnabled
+            style={styles.scrollView}
+            snapToAlignment={'center'}
+            decelerationRate={0}
+          >
+            {deckList.map((deckName, index) => {
+              return (
+                <TouchableOpacity
+                  key={index}
+                  onPress={() =>
+                    this.props.navigation.navigate('LessonsMenu', {
+                      nameOfDeck: deckName
+                    })
+                  }
+                >
+                  <View>
+                    <Card
+                      title={deckName}
+                      position={index}
+                      xOffset={yourDeckXOffset}
+                    />
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </Animated.ScrollView>
+          <View style={styles.menuContainer}>
+            <Text style={styles.menuLink}>Favorites</Text>
+            <Text style={styles.menuLink}>See All</Text>
+          </View>
+          <Animated.ScrollView
+            horizontal
+            onScroll={onScroll(favoritesXOffset)}
+            scrollEventThrottle={16}
+            snapToAlignment={'center'}
+            snapToInterval={cardWithPadding}
+            decelerationRate={0}
+          >
+            {deckList.length > 0 ? (
+              deckList.map((deckName, index) => {
+                return (
+                  <View key={index}>
+                    <Card
+                      title={deckName}
+                      position={index}
+                      xOffset={favoritesXOffset}
+                    />
+                  </View>
+                );
+              })
+            ) : (
+              <ActivityIndicator size="large" color="#0000ff" />
+            )}
+          </Animated.ScrollView>
         </Animated.ScrollView>
-        <View style={styles.menuContainer}>
-          <Text style={styles.menuLink}>Favorites</Text>
-          <Text style={styles.menuLink}>See All</Text>
-        </View>
-        <Animated.ScrollView
-          horizontal
-          onScroll={onScroll(favoritesXOffset)}
-          scrollEventThrottle={16}
-        >
-          {Decks.map((Deck, index) => {
-            return (
-              <View key={index}>
-                <Card
-                  title={Deck.title}
-                  position={index}
-                  xOffset={favoritesXOffset}
-                />
-              </View>
-            );
-          })}
-        </Animated.ScrollView>
-      </Animated.ScrollView>
-    </SafeAreaView>
-  );
-};
+      </SafeAreaView>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -112,5 +150,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
-
-export default Menu;

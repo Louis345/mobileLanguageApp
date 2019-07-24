@@ -4,7 +4,7 @@ import { SafeAreaView, Text, StyleSheet } from 'react-native';
 const LessonsMenu = () => {
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Test</Text>
+      <Text>Lessons Menu</Text>
     </SafeAreaView>
   );
 };

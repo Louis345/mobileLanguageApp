@@ -7,13 +7,13 @@ import {
   View,
   TouchableWithoutFeedback
 } from 'react-native';
-
+import AsyncStorage from '../util/fetchData';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 let xOffset = new Animated.Value(0);
 export default class App extends Component {
   constructor(props) {
     super(props);
-    const flashcards = ['konichiwa', 'hi', 'genki desu', 'how are you'];
+    const flashcards = [];
     this.state = {
       flashcards,
       flipping: false,
@@ -46,12 +46,23 @@ export default class App extends Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     xOffset = new Animated.Value(0);
+    const {
+      navigation: {
+        state: {
+          params: { nameOfDeck }
+        }
+      }
+    } = this.props;
 
-    this.setState({
-      flipped: this.state.flashcards.map(() => false),
-      deckLength: this.state.flashcards.length
+    const cards = AsyncStorage.getDeckList(nameOfDeck);
+    cards.then(cards => {
+      this.setState({
+        flipped: this.state.flashcards.map(() => false),
+        deckLength: this.state.flashcards.length,
+        flashcards: cards.flashcards
+      });
     });
 
     this.onScroll = Animated.event(
@@ -111,8 +122,6 @@ export default class App extends Component {
               key={index}
               onPress={() => {
                 this.flipCard(index);
-
-                console.log(this.state);
               }}
             >
               <View>
@@ -125,9 +134,7 @@ export default class App extends Component {
                       styles.screen
                     ]}
                   >
-                    <Text style={styles.text}>
-                      {this.state.flashcards[index]}
-                    </Text>
+                    <Text style={styles.text}>{flashcards[index].front}</Text>
                   </Animated.View>
                 )}
 
@@ -141,9 +148,7 @@ export default class App extends Component {
                       this.state.flipping && styles.back
                     ]}
                   >
-                    <Text style={styles.text}>
-                      {this.state.flashcards[index + 1]}
-                    </Text>
+                    <Text style={styles.text}>{flashcards[index].back}</Text>
                   </Animated.View>
                 )}
               </View>
@@ -155,7 +160,6 @@ export default class App extends Component {
   };
 
   flipCard = index => {
-    console.log(this.state.flipping);
     if (this.state.flipping) return;
 
     let isFlipped = this.state.flipped[index];
@@ -181,6 +185,8 @@ export default class App extends Component {
   };
 
   render() {
+    const { flashcards } = this.state;
+
     return (
       <View style={styles.container}>
         <Animated.ScrollView
@@ -192,7 +198,7 @@ export default class App extends Component {
           style={styles.scrollView}
           ref={ref => (this.scrollView = ref)}
         >
-          {this.state.flashcards && this.state.flashcards.map(this.renderCard)}
+          {flashcards && flashcards.map(this.renderCard)}
         </Animated.ScrollView>
       </View>
     );

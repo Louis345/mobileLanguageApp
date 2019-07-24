@@ -1,11 +1,12 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { Dimensions } from 'react-native';
+
 const SCREEN_WIDTH = Dimensions.get('window').width;
 export const menuHeader = '#FFDA39';
 export const lightBlue = '#80BFE0';
 export const linkFontSize = 15;
 export const cardBoxShadow = {
-  shadowOffset: { width: 0, height: 15 },
-  shadowOpacity: 0.8,
+  shadowOffset: { width: 0, height: 10 },
+  shadowOpacity: 0.2,
   shadowRadius: 2
 };
 
