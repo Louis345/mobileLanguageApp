@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, Animated } from 'react-native';
-import { cardMargin, lightBlue } from '../../styles/styles.js';
-import Dash from 'react-native-dash';
+import { cardMargin } from '../../styles/styles.js';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 

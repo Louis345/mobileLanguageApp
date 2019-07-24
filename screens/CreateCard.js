@@ -11,10 +11,9 @@ import {
 } from 'react-native';
 import Card from '../components/Card/Card';
 import ActionSheet from '../components/ActionSheet/ActionSheet';
-import { lightBlue, cardWidth } from '../styles/styles';
+import { lightBlue, cardWidth, cardMargin } from '../styles/styles';
 import { Input, Button } from 'react-native-elements';
 import { Entypo } from '@expo/vector-icons';
-import { cardMargin } from '../styles/styles';
 
 const cardWithPadding = cardWidth + cardMargin * 2;
 export default class CreateCard extends React.Component {
@@ -67,9 +66,6 @@ export default class CreateCard extends React.Component {
     const updatedArr = flashcardsPosition.map((position, index) => {
       if (position === 0) {
         return 0;
-      } else if (placeHolder === 0) {
-        placeHolder += cardWithPadding;
-        return placeHolder;
       } else {
         placeHolder += cardWithPadding;
         return placeHolder;
@@ -203,13 +199,7 @@ export default class CreateCard extends React.Component {
         Dimensions.get('window').height * -0.05
     };
 
-    const {
-      flashcards,
-      currentlyViewedCard,
-      userInput,
-      cardNumber,
-      flashcardsPosition
-    } = this.state;
+    const { flashcards, currentlyViewedCard, userInput } = this.state;
     const { navigation } = this.props;
 
     let cardFacingPosition = null;
@@ -243,9 +233,15 @@ export default class CreateCard extends React.Component {
                 : currentlyViewedCard
             } - ${cardFacingPosition}`}</Text>
           </View>
-          <View>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('CreateDeck', {
+                flashcards: [...this.state.flashcards]
+              })
+            }
+          >
             <Text style={styles.headerText}>Done</Text>
-          </View>
+          </TouchableOpacity>
         </View>
         <View style={styles.bodyContainer}>
           <Animated.ScrollView
@@ -261,7 +257,7 @@ export default class CreateCard extends React.Component {
               top: 0,
               left: 0,
               bottom: 0,
-              right: -cardWidth * 0.74
+              right: -cardWidth * 0.7
             }}
             onScrollEndDrag={event => {
               if (event.nativeEvent) {
