@@ -16,6 +16,7 @@ import CreateCard from '../screens/CreateCard';
 import QRScanner from '../screens/QRScanner';
 import Card from '../screens/Cards';
 import LessonsMenu from '../screens/LessonsMenu';
+import Quiz from '../screens/Quiz';
 
 const topNavigator = createMaterialTopTabNavigator(
   {
@@ -26,7 +27,10 @@ const topNavigator = createMaterialTopTabNavigator(
       screen: Card
     },
     Quiz: {
-      screen: LessonsMenu
+      screen: Quiz,
+      tabBarOptions: {
+        showLabel: false
+      }
     }
   },
   {
@@ -85,9 +89,10 @@ const bottomNavigator = createBottomTabNavigator({
     navigationOptions: () => ({
       tabBarPosition: 'bottom',
       title: 'Create Deck',
+      tabBarVisible: false,
       tabBarOnPress: ({ navigation, defaultHandler }) => {
         navigation.navigate('CreateDeck');
-        navigation.setParams({ flashcards: null });
+        navigation.setParams({ flashcards: null, title: null });
         defaultHandler();
       },
       tabBarIcon: () => <AntDesign name="plus" />
@@ -112,6 +117,47 @@ const bottomNavigator = createBottomTabNavigator({
     })
   }
 });
+
+stackNavigator.navigationOptions = ({ navigation }) => {
+  let tabBarVisible = true;
+
+  // eslint-disable-next-line prefer-destructuring
+  const routeName = navigation.state.routes[navigation.state.index].routeName;
+
+  console.log({ routeName });
+
+  if (routeName === 'CreateCard') {
+    tabBarVisible = false;
+  }
+
+  if (routeName === 'LessonsMenu') {
+    tabBarVisible = false;
+  }
+
+  return {
+    tabBarVisible
+  };
+};
+
+topNavigator.navigationOptions = ({ navigation }) => {
+  console.log({ navigation });
+  let tabBarVisible = false;
+
+  // eslint-disable-next-line prefer-destructuring
+  const routeName = navigation.state.routes[navigation.state.index].routeName;
+
+  if (routeName === 'CreateCard') {
+    tabBarVisible = false;
+  }
+
+  if (routeName === 'LessonsMenu') {
+    tabBarVisible = false;
+  }
+
+  return {
+    showLabel: false
+  };
+};
 
 const App = createAppContainer(bottomNavigator);
 

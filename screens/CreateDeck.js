@@ -26,8 +26,7 @@ const cardWithPadding = cardWidth + cardMargin * 2;
 export default class CreateDeck extends React.Component {
   state = {
     isInputFocused: false,
-    openActionSheet: false,
-    title: ''
+    openActionSheet: false
   };
 
   setInputFocus = () => {
@@ -37,9 +36,59 @@ export default class CreateDeck extends React.Component {
     });
   };
 
+  static getDerivedStateFromProps(prevProps, prevState) {
+    const {
+      navigation: {
+        state: {
+          params: { title }
+        }
+      }
+    } = prevProps;
+
+    if (prevState.title === '') {
+      return {
+        title: ''
+      };
+    }
+
+    if (title) {
+      return {
+        title
+      };
+    }
+    if (prevState.title) {
+      return {
+        title: prevState.title
+      };
+    }
+    return {
+      title: ''
+    };
+  }
+
   handleTitleChange = title => {
     this.setState({
       title
+    });
+  };
+
+  handleCardFlip = currentlyViewedCard => {
+    const {
+      navigation: {
+        state: {
+          params: { flashcards }
+        }
+      }
+    } = this.props;
+
+    const updatedCards = flashcards.map((flashcard, index) => {
+      if (currentlyViewedCard === index) {
+        flashcard.isCardFlipped = !flashcard.isCardFlipped;
+      }
+      return flashcard;
+    });
+    this.setState({
+      flashcards: updatedCards
     });
   };
 
@@ -67,7 +116,7 @@ export default class CreateDeck extends React.Component {
     }
   };
 
-  handleCardPress = () => {
+  handleIconPress = () => {
     this.props.navigation.navigate('CreateCard');
   };
   renderCardList = () => {
@@ -78,6 +127,7 @@ export default class CreateDeck extends React.Component {
         }
       }
     } = this.props;
+
     return (
       //To Do this can become a component
 
@@ -95,25 +145,43 @@ export default class CreateDeck extends React.Component {
           right: -cardWidth * 0.7
         }}
       >
-        {flashcards.map(flashcard => {
+        {flashcards.map((flashcard, index) => {
           return (
-            <Card
-              width={cardWidth}
-              style={{
-                height: 250,
-                borderRadius: 20
-              }}
-              SideB={flashcard.back === '' ? 'Enter Text' : flashcard.back}
-            >
-              <View>
-                <Text>
-                  {flashcard.front === '' ? 'Enter Text' : flashcard.front}
-                </Text>
-                {/* <TouchableOpacity>
-                  <Entypo name="pencil" size={20} />
-                </TouchableOpacity> */}
+            <TouchableOpacity onPress={() => this.handleCardFlip(index)}>
+              <Card
+                width={cardWidth}
+                style={{
+                  height: 250
+                }}
+                SideB={flashcard.back === '' ? 'Enter Text' : flashcard.back}
+                flipToSideA={flashcard.isCardFlipped}
+                flipToSideB={!flashcard.isCardFlipped}
+              >
+                <View
+                  style={{
+                    height: 250,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text>
+                    {flashcard.front === '' ? 'Enter Text' : flashcard.front}
+                  </Text>
+                </View>
+              </Card>
+              <View style={styles.editIcon}>
+                <Entypo
+                  name="pencil"
+                  size={30}
+                  onPress={() =>
+                    this.props.navigation.navigate('CreateCard', {
+                      scrollToCard: index,
+                      flashcards
+                    })
+                  }
+                />
               </View>
-            </Card>
+            </TouchableOpacity>
           );
         })}
         <Card
@@ -148,7 +216,15 @@ export default class CreateDeck extends React.Component {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerButtonText}>Close</Text>
+          <TouchableOpacity
+            onPress={() =>
+              this.setState({ title: '' }, () => {
+                this.props.navigation.navigate('Menu');
+              })
+            }
+          >
+            <Text style={styles.headerButtonText}>Close</Text>
+          </TouchableOpacity>
           <Text style={[styles.headerButtonText, styles.headerText]}>
             Create Deck
           </Text>
@@ -181,10 +257,8 @@ export default class CreateDeck extends React.Component {
           Object.keys(params.flashcards).length > 0 ? (
             this.renderCardList()
           ) : (
-            <TouchableOpacity onPress={() => this.handleCardPress()}>
-              <Card
-                style={{ height: 300, width: 250, borderRadius: 20, margin: 0 }}
-              >
+            <TouchableOpacity onPress={() => this.handleIconPress()}>
+              <Card style={styles.createDeckContainer}>
                 <Entypo name="plus" color={lightBlue} size={35} />
               </Card>
             </TouchableOpacity>
@@ -286,14 +360,23 @@ const styles = StyleSheet.create({
   footer: {
     margin: 30
   },
-  editIcon: {
-    zIndex: 200,
-    bottom: -110,
-    right: -80,
-    ...cardBoxShadow
-  },
   placeHolder: {
     justifyContent: 'center',
     alignItems: 'flex-start'
+  },
+  editIcon: {
+    position: 'absolute',
+    left: cardWidth - 30,
+    right: 0,
+    bottom: 20,
+    zIndex: 20000
+  },
+  createDeckContainer: {
+    height: 300,
+    width: 250,
+    borderRadius: 20,
+    margin: 0,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 });

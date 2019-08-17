@@ -1,116 +1,54 @@
 const decks = [
   {
     title: 'Grammer',
-    flashcard: [
+    flashcards: [
       {
-        front: 'konichiwa',
+        front: 'Tomorrow',
         back: 'hi',
         progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: false
       },
       {
-        front: 'konichiwa',
-        back: 'hi',
+        front: 'sayanora',
+        back: 'goodbye',
         progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: false
       },
       {
-        front: 'konichiwa',
-        back: 'hi',
+        front: 'genki',
+        back: 'how are you',
         progress: 0,
-        dueDate: 'today'
-      }
-    ]
-  },
-  {
-    title: 'Grammer',
-    flashcard: [
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: false
       },
       {
-        front: 'konichiwa',
-        back: 'hi',
+        front: 'inu',
+        back: 'dog',
         progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: false
       },
       {
-        front: 'konichiwa',
-        back: 'hi',
+        front: 'car',
+        back: 'kurma',
         progress: 0,
-        dueDate: 'today'
-      }
-    ]
-  },
-  {
-    title: 'Grammer',
-    flashcard: [
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: true
       },
       {
-        front: 'konichiwa',
-        back: 'hi',
+        front: 'store',
+        back: 'mise',
         progress: 0,
-        dueDate: 'today'
-      },
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      }
-    ]
-  },
-  {
-    title: 'Verbs',
-    flashcard: [
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      },
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      },
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      }
-    ]
-  },
-  {
-    title: 'Nouns',
-    flashcard: [
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      },
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
-      },
-      {
-        front: 'konichiwa',
-        back: 'hi',
-        progress: 0,
-        dueDate: 'today'
+        dueDate: 'today',
+        isCardFlipped: false,
+        isCorrect: true
       }
     ]
   }

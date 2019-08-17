@@ -6,9 +6,11 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions
 } from 'react-native';
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
 import Card from '../components/Card/Card';
 import { onScroll } from '../util/animationHelper';
 import AsyncStorage from '../util/fetchData';
@@ -57,6 +59,13 @@ export default class Menu extends React.PureComponent {
             style={styles.scrollView}
             snapToAlignment={'center'}
             decelerationRate={0}
+            snapToInterval={SCREEN_WIDTH / 2 - 60}
+            contentInset={{
+              top: 0,
+              left: 30,
+              bottom: 0,
+              right: 30
+            }}
           >
             {deckList.map((deckName, index) => {
               return (

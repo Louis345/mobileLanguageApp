@@ -116,10 +116,9 @@ export default class App extends Component {
     if (this.state.flipped) {
       const isFlipped = this.state.flipped[index];
       return (
-        <View style={styles.container}>
+        <View style={styles.container} key={index}>
           <View style={styles.scrollPage}>
             <TouchableWithoutFeedback
-              key={index}
               onPress={() => {
                 this.flipCard(index);
               }}

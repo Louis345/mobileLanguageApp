@@ -83,6 +83,7 @@ export default class Card extends React.Component {
 
     flipToSideA && this.flipToSideA();
     flipToSideB && this.flipToSideB();
+
     onPress && onPress();
     return (
       <View>

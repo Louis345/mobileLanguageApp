@@ -36,10 +36,51 @@ export default class CreateCard extends React.Component {
     offset: {},
     currentlyViewedCard: 0,
     isCardFlipped: false,
-    userInput: ''
+    userInput: '',
+    scrollToCard: null
   };
+
+  async componentDidMount() {
+    this.focusListener = this.props.navigation.addListener('didFocus', () => {
+      this.onFocusFunction();
+    });
+  }
+  componentWillUnmount() {
+    this.focusListener.remove();
+  }
+
+  onFocusFunction = async () => {
+    const {
+      navigation: {
+        state: { params, params: flashcards }
+      }
+    } = this.props;
+    if (flashcards) {
+      this.setState(
+        {
+          flashcards: flashcards.flashcards
+        },
+        () => {
+          this.scrollToCard();
+          console.log('being called');
+        }
+      );
+    }
+    if (params) {
+      setTimeout(() => {
+        this.scrollToCard();
+      }, 500);
+    }
+  };
+
+  handleTitleChange = title => {
+    this.setState({
+      title
+    });
+  };
+
   handleNewCard = () => {
-    const { flashcardsPosition, flashcards } = this.state;
+    const { flashcards } = this.state;
     const newFlashCards = [...this.state.flashcards];
     newFlashCards.push({
       isCardFlipped: false,
@@ -60,7 +101,7 @@ export default class CreateCard extends React.Component {
     );
   };
 
-  setArrayPositions = flashcardsPosition => {
+  setFlashcardPositions = flashcardsPosition => {
     let placeHolder = 0;
 
     const updatedArr = flashcardsPosition.map((position, index) => {
@@ -111,12 +152,16 @@ export default class CreateCard extends React.Component {
 
   handleCardFlip = () => {
     const { flashcards, currentlyViewedCard } = this.state;
+    console.log('flipping card');
+    console.log({ currentlyViewedCard });
     const updatedCards = flashcards.map((flashcard, index) => {
       if (currentlyViewedCard === index) {
         flashcard.isCardFlipped = !flashcard.isCardFlipped;
       }
       return flashcard;
     });
+
+    console.log({ updatedCards });
     this.setState({
       flashcards: updatedCards,
       isCardFlipped: !this.state.isCardFlipped
@@ -167,7 +212,7 @@ export default class CreateCard extends React.Component {
 
     updatedFlashcardPosition.unshift(0);
 
-    const fixedArrayPositions = this.setArrayPositions(
+    const fixedArrayPositions = this.setFlashcardPositions(
       updatedFlashcardPosition
     );
 
@@ -192,17 +237,37 @@ export default class CreateCard extends React.Component {
     });
   };
 
+  scrollToCard = () => {
+    const {
+      navigation: {
+        state: {
+          params: { scrollToCard }
+        }
+      }
+    } = this.props;
+    const { flashcardsPosition } = this.state;
+
+    const updatedFlashcardPosition = this.setFlashcardPositions(
+      flashcardsPosition
+    );
+    this.scroller.getNode().scrollTo({
+      x: updatedFlashcardPosition[scrollToCard],
+      y: 0,
+      animated: true
+    });
+    this.setState({
+      currentlyViewedCard: scrollToCard
+    });
+  };
+
   render() {
     const actionSheetHeight = {
       top:
         Dimensions.get('window').height -
         Dimensions.get('window').height * -0.05
     };
-
     const { flashcards, currentlyViewedCard, userInput } = this.state;
     const { navigation } = this.props;
-
-    let cardFacingPosition = null;
 
     if (flashcards[currentlyViewedCard]) {
       cardFacingPosition = flashcards[currentlyViewedCard].isCardFlipped
@@ -230,7 +295,7 @@ export default class CreateCard extends React.Component {
             <Text>{`${
               currentlyViewedCard > flashcards.length
                 ? currentlyViewedCard - 1
-                : currentlyViewedCard
+                : currentlyViewedCard + 1
             } - ${cardFacingPosition}`}</Text>
           </View>
           <TouchableOpacity
@@ -300,7 +365,9 @@ export default class CreateCard extends React.Component {
                       width={cardWidth}
                       style={{
                         height: 250,
-                        borderRadius: 20
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        alignItems: 'center'
                       }}
                       SideB={
                         flashcard.back === '' ? 'Enter Text' : flashcard.back

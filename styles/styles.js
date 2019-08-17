@@ -1,7 +1,6 @@
 import { Dimensions } from 'react-native';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
-export const menuHeader = '#FFDA39';
 export const lightBlue = '#80BFE0';
 export const linkFontSize = 15;
 export const cardBoxShadow = {

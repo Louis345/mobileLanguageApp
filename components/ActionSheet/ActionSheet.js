@@ -17,10 +17,12 @@ export default class ActionSheet extends React.Component {
     const {
       input,
       input: { FirstInput },
-      animatePanel
+      animatePanel,
+      resetInput
     } = this.props;
 
     animatePanel && input ? FirstInput.focus() : FirstInput.blur();
+    resetInput && FirstInput.clear();
   }
 
   openPanel = () => {
