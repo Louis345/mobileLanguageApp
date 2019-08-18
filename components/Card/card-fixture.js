@@ -1,54 +1,54 @@
 const decks = [
   {
-    title: 'Grammer',
+    title: "Grammer",
     flashcards: [
       {
-        front: 'Tomorrow',
-        back: 'hi',
+        front: "Tomorrow",
+        back: "hi",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: false
+        isCorrect: ""
       },
       {
-        front: 'sayanora',
-        back: 'goodbye',
+        front: "sayanora",
+        back: "goodbye",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: false
+        isCorrect: ""
       },
       {
-        front: 'genki',
-        back: 'how are you',
+        front: "genki",
+        back: "how are you",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: false
+        isCorrect: ""
       },
       {
-        front: 'inu',
-        back: 'dog',
+        front: "inu",
+        back: "dog",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: false
+        isCorrect: ""
       },
       {
-        front: 'car',
-        back: 'kurma',
+        front: "car",
+        back: "kurma",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: true
+        isCorrect: ""
       },
       {
-        front: 'store',
-        back: 'mise',
+        front: "store",
+        back: "mise",
         progress: 0,
-        dueDate: 'today',
+        dueDate: "today",
         isCardFlipped: false,
-        isCorrect: true
+        isCorrect: ""
       }
     ]
   }

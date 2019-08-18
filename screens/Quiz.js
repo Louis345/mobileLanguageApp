@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Text,
   View,
@@ -6,12 +6,12 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet
-} from 'react-native';
-import Card from '../components/Card/Card';
-import { lightBlue, cardWidth } from '../styles/styles';
-import AsyncStorage from '../util/fetchData';
-import ProgressBar from '../components/ProgressBar/ProgressBar';
-import MS from 'memory-scheduler';
+} from "react-native";
+import Card from "../components/Card/Card";
+import { lightBlue, cardWidth } from "../styles/styles";
+import AsyncStorage from "../util/fetchData";
+import ProgressBar from "../components/ProgressBar/ProgressBar";
+import MS from "memory-scheduler";
 const SessionIntervalsinDays = [2, 3, 5, 8, 17, 30, 60, 90, 180, 360];
 const QuizResultToProgress = [-1, 1];
 const DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
@@ -42,12 +42,10 @@ export default class Quiz extends React.PureComponent {
     } = this.props;
 
     const deck = await AsyncStorage.getDeckList(nameOfDeck);
-    console.log('componentDidmount');
-    console.log({ deck });
     this.setState(
       {
         deck: deck.flashcards,
-        cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+        cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
       },
       () => {
         this.generateQuestions();
@@ -59,7 +57,21 @@ export default class Quiz extends React.PureComponent {
     );
   }
   answerCompletedAnimation = userSelectedAnswer => {
+    console.log("Answer selected by user");
     console.log({ userSelectedAnswer });
+    if (this.state.cardSide === "front") {
+      if (userSelectedAnswer.back === this.state.currentAnswer) {
+        userSelectedAnswer.isCorrect = true;
+      } else {
+        userSelectedAnswer.isCorrect = false;
+      }
+    } else {
+      if (userSelectedAnswer.front === this.state.currentAnswer) {
+        userSelectedAnswer.isCorrect = true;
+      } else {
+        userSelectedAnswer.isCorrect = false;
+      }
+    }
 
     Animated.timing(this.state.moveRightDirection, {
       toValue: 1,
@@ -69,7 +81,7 @@ export default class Quiz extends React.PureComponent {
         {
           isAnswerCompleted: true,
           currentlyViewedCard: ++this.state.currentlyViewedCard,
-          cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+          cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
         },
         () => {
           this.newAnswerStartAnimation();
@@ -102,7 +114,7 @@ export default class Quiz extends React.PureComponent {
     this.setState({
       currentQuestions: questions,
       currentAnswer:
-        deck[currentlyViewedCard][cardSide === 'front' ? 'back' : ' front']
+        deck[currentlyViewedCard][cardSide === "front" ? "back" : " front"]
     });
   };
 
@@ -142,7 +154,7 @@ export default class Quiz extends React.PureComponent {
           onPress={() => this.answerCompletedAnimation(question)}
         >
           <Text style={styles.questionText}>
-            {question[cardSide === 'back' ? 'front' : 'back']}
+            {question[cardSide === "back" ? "front" : "back"]}
           </Text>
         </TouchableOpacity>
       );
@@ -151,26 +163,25 @@ export default class Quiz extends React.PureComponent {
 
   DayNumberToMMDDYY = time => {
     let DateTime = new Date(parseInt(time * DAY_IN_MILISECONDS, 10));
-    let dd = String(DateTime.getDate()).padStart(2, '0');
-    let mm = String(DateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let dd = String(DateTime.getDate()).padStart(2, "0");
+    let mm = String(DateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
     let yyyy = DateTime.getFullYear();
-    let today = mm + '/' + dd + '/' + yyyy;
+    let today = mm + "/" + dd + "/" + yyyy;
     return today;
   };
 
   onComplete = () => {
     const { deck } = this.state;
-    console.log({ deck });
     const addedRepetitionToDeck = deck.map((flashcard, index) => {
       const newRecord = this.SpacedRepetition.calculate(
-        flashcard.iSCorrect ? 1 : 0,
+        flashcard.isCorrect ? 1 : 0,
         flashcard,
         GetTodayDayNumber
       );
-      flashcard['progress'] = newRecord.progress;
-      flashcard['dueDate'] =
+      flashcard["progress"] = newRecord.progress;
+      flashcard["dueDate"] =
         newRecord.progress > SessionIntervalsinDays.length
-          ? 'never'
+          ? "never"
           : this.DayNumberToMMDDYY(newRecord.dueDate);
       return flashcard;
     });
@@ -204,6 +215,7 @@ export default class Quiz extends React.PureComponent {
         }
       ]
     };
+    console.log("State");
     console.log(this.state);
     return (
       <SafeAreaView
@@ -214,9 +226,9 @@ export default class Quiz extends React.PureComponent {
         <View
           style={{
             flex: 0.1,
-            justifyContent: 'center',
-            marginLeft: '10%',
-            marginRight: '10%'
+            justifyContent: "center",
+            marginLeft: "10%",
+            marginRight: "10%"
           }}
         >
           <ProgressBar progress={this.state.progress} animateStart={true} />
@@ -230,7 +242,7 @@ export default class Quiz extends React.PureComponent {
           ]}
         >
           {!isQuizComplete && deck && deck.length > 0 && this.renderCards()}
-          <View style={{ justifyContent: 'center', width: '90%' }}>
+          <View style={{ justifyContent: "center", width: "90%" }}>
             {!isQuizComplete &&
               deck &&
               deck.length > 0 &&
@@ -245,8 +257,8 @@ export default class Quiz extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 0.9,
-    alignItems: 'center',
-    justifyContent: 'space-evenly'
+    alignItems: "center",
+    justifyContent: "space-evenly"
   },
   question: {
     borderRadius: 10,
@@ -254,14 +266,14 @@ const styles = StyleSheet.create({
     borderColor: lightBlue,
     height: 60,
     marginBottom: 5,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center"
   },
   questionText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
+    textAlign: "center",
+    fontWeight: "bold",
     color: lightBlue,
     fontSize: 20,
-    width: '100%'
+    width: "100%"
   }
 });
