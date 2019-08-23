@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Text,
   View,
@@ -6,17 +6,18 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet
-} from "react-native";
-import Card from "../components/Card/Card";
-import { lightBlue, cardWidth } from "../styles/styles";
-import AsyncStorage from "../util/fetchData";
-import ProgressBar from "../components/ProgressBar/ProgressBar";
-import MS from "memory-scheduler";
+} from 'react-native';
+import withNavigationContextConsumer from '../context/with-navigation-context-consumer';
+import Card from '../components/Card/Card';
+import { lightBlue, cardWidth } from '../styles/styles';
+import AsyncStorage from '../util/fetchData';
+import ProgressBar from '../components/ProgressBar/ProgressBar';
+import MS from 'memory-scheduler';
 const SessionIntervalsinDays = [2, 3, 5, 8, 17, 30, 60, 90, 180, 360];
 const QuizResultToProgress = [-1, 1];
 const DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
 const GetTodayDayNumber = Math.round(new Date().getTime() / DAY_IN_MILISECONDS);
-export default class Quiz extends React.PureComponent {
+class FlashCardQuiz extends React.PureComponent {
   state = {
     angle: new Animated.Value(0),
     moveRightDirection: new Animated.Value(0),
@@ -33,19 +34,13 @@ export default class Quiz extends React.PureComponent {
    *
    */
   async componentDidMount() {
-    const {
-      navigation: {
-        state: {
-          params: { nameOfDeck }
-        }
-      }
-    } = this.props;
+    const { selectedCardDeck } = this.props;
 
-    const deck = await AsyncStorage.getDeckList(nameOfDeck);
+    const deck = await AsyncStorage.getDeckList(selectedCardDeck);
     this.setState(
       {
         deck: deck.flashcards,
-        cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
+        cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
       },
       () => {
         this.generateQuestions();
@@ -56,17 +51,42 @@ export default class Quiz extends React.PureComponent {
       QuizResultToProgress
     );
   }
+
+  async componentDidUpdate(prevProps) {
+    if (this.props.selectedCardDeck !== prevProps.selectedCardDeck) {
+      const { selectedCardDeck } = this.props;
+      const deck = await AsyncStorage.getDeckList(selectedCardDeck);
+      this.setState(
+        {
+          deck: deck.flashcards,
+          cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+        },
+        () => {
+          this.generateQuestions();
+        }
+      );
+      this.SpacedRepetition = new MS(
+        SessionIntervalsinDays,
+        QuizResultToProgress
+      );
+    }
+  }
   answerCompletedAnimation = userSelectedAnswer => {
-    console.log("Answer selected by user");
-    console.log({ userSelectedAnswer });
-    if (this.state.cardSide === "front") {
-      if (userSelectedAnswer.back === this.state.currentAnswer) {
+    const {
+      currentlyViewedCard,
+      deck,
+      isQuizComplete,
+      currentAnswer
+    } = this.state;
+    currentlyViewedCard === deck.length - 1 && this.onComplete();
+    if (this.state.cardSide === 'front') {
+      if (userSelectedAnswer.back === currentAnswer) {
         userSelectedAnswer.isCorrect = true;
       } else {
         userSelectedAnswer.isCorrect = false;
       }
     } else {
-      if (userSelectedAnswer.front === this.state.currentAnswer) {
+      if (userSelectedAnswer.front === currentAnswer) {
         userSelectedAnswer.isCorrect = true;
       } else {
         userSelectedAnswer.isCorrect = false;
@@ -81,11 +101,13 @@ export default class Quiz extends React.PureComponent {
         {
           isAnswerCompleted: true,
           currentlyViewedCard: ++this.state.currentlyViewedCard,
-          cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
+          cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
         },
         () => {
           this.newAnswerStartAnimation();
-          this.generateQuestions();
+          const { isQuizComplete } = this.state;
+
+          !isQuizComplete && this.generateQuestions();
         }
       );
     });
@@ -114,13 +136,15 @@ export default class Quiz extends React.PureComponent {
     this.setState({
       currentQuestions: questions,
       currentAnswer:
-        deck[currentlyViewedCard][cardSide === "front" ? "back" : " front"]
+        deck[currentlyViewedCard][cardSide === 'front' ? 'back' : 'front']
     });
   };
 
   newAnswerStartAnimation = () => {
     const { deck, currentlyViewedCard } = this.state;
-    deck && currentlyViewedCard === deck.length - 1 && this.onComplete();
+
+    const percentToCompletion = 100 / deck.length;
+
     this.state.moveRightDirection.setValue(0);
     Animated.sequence([
       Animated.timing(this.state.moveLeftDirection, {
@@ -130,7 +154,7 @@ export default class Quiz extends React.PureComponent {
     ]).start(
       this.setState({
         isAnswerCompleted: false,
-        progress: this.state.progress + 10
+        progress: this.state.progress + percentToCompletion
       })
     );
   };
@@ -150,11 +174,12 @@ export default class Quiz extends React.PureComponent {
     return currentQuestions.map((question, index) => {
       return (
         <TouchableOpacity
+          key={index}
           style={styles.question}
           onPress={() => this.answerCompletedAnimation(question)}
         >
           <Text style={styles.questionText}>
-            {question[cardSide === "back" ? "front" : "back"]}
+            {question[cardSide === 'back' ? 'front' : 'back']}
           </Text>
         </TouchableOpacity>
       );
@@ -163,10 +188,10 @@ export default class Quiz extends React.PureComponent {
 
   DayNumberToMMDDYY = time => {
     let DateTime = new Date(parseInt(time * DAY_IN_MILISECONDS, 10));
-    let dd = String(DateTime.getDate()).padStart(2, "0");
-    let mm = String(DateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
+    let dd = String(DateTime.getDate()).padStart(2, '0');
+    let mm = String(DateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
     let yyyy = DateTime.getFullYear();
-    let today = mm + "/" + dd + "/" + yyyy;
+    let today = mm + '/' + dd + '/' + yyyy;
     return today;
   };
 
@@ -178,14 +203,14 @@ export default class Quiz extends React.PureComponent {
         flashcard,
         GetTodayDayNumber
       );
-      flashcard["progress"] = newRecord.progress;
-      flashcard["dueDate"] =
+      flashcard['progress'] = newRecord.progress;
+      flashcard['dueDate'] =
         newRecord.progress > SessionIntervalsinDays.length
-          ? "never"
+          ? 'never'
           : this.DayNumberToMMDDYY(newRecord.dueDate);
       return flashcard;
     });
-    console.log({ addedRepetitionToDeck });
+
     this.setState({
       isQuizComplete: true
     });
@@ -215,8 +240,7 @@ export default class Quiz extends React.PureComponent {
         }
       ]
     };
-    console.log("State");
-    console.log(this.state);
+
     return (
       <SafeAreaView
         style={{
@@ -226,12 +250,12 @@ export default class Quiz extends React.PureComponent {
         <View
           style={{
             flex: 0.1,
-            justifyContent: "center",
-            marginLeft: "10%",
-            marginRight: "10%"
+            justifyContent: 'center',
+            marginLeft: '10%',
+            marginRight: '10%'
           }}
         >
-          <ProgressBar progress={this.state.progress} animateStart={true} />
+          <ProgressBar percent={this.state.progress} animateStart={true} />
         </View>
         <Animated.View
           style={[
@@ -242,7 +266,7 @@ export default class Quiz extends React.PureComponent {
           ]}
         >
           {!isQuizComplete && deck && deck.length > 0 && this.renderCards()}
-          <View style={{ justifyContent: "center", width: "90%" }}>
+          <View style={{ justifyContent: 'center', width: '90%' }}>
             {!isQuizComplete &&
               deck &&
               deck.length > 0 &&
@@ -257,8 +281,8 @@ export default class Quiz extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 0.9,
-    alignItems: "center",
-    justifyContent: "space-evenly"
+    alignItems: 'center',
+    justifyContent: 'space-evenly'
   },
   question: {
     borderRadius: 10,
@@ -266,14 +290,18 @@ const styles = StyleSheet.create({
     borderColor: lightBlue,
     height: 60,
     marginBottom: 5,
-    justifyContent: "center",
-    alignItems: "center"
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   questionText: {
-    textAlign: "center",
-    fontWeight: "bold",
+    textAlign: 'center',
+    fontWeight: 'bold',
     color: lightBlue,
     fontSize: 20,
-    width: "100%"
+    width: '100%'
   }
 });
+
+const Quiz = withNavigationContextConsumer(FlashCardQuiz);
+
+export default Quiz;

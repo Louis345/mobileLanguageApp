@@ -62,7 +62,6 @@ export default class CreateCard extends React.Component {
         },
         () => {
           this.scrollToCard();
-          console.log('being called');
         }
       );
     }
@@ -152,8 +151,6 @@ export default class CreateCard extends React.Component {
 
   handleCardFlip = () => {
     const { flashcards, currentlyViewedCard } = this.state;
-    console.log('flipping card');
-    console.log({ currentlyViewedCard });
     const updatedCards = flashcards.map((flashcard, index) => {
       if (currentlyViewedCard === index) {
         flashcard.isCardFlipped = !flashcard.isCardFlipped;
@@ -161,7 +158,6 @@ export default class CreateCard extends React.Component {
       return flashcard;
     });
 
-    console.log({ updatedCards });
     this.setState({
       flashcards: updatedCards,
       isCardFlipped: !this.state.isCardFlipped

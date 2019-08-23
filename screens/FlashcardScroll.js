@@ -8,9 +8,10 @@ import {
   TouchableWithoutFeedback
 } from 'react-native';
 import AsyncStorage from '../util/fetchData';
+import withNavigationContextConsumer from '../context/with-navigation-context-consumer';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 let xOffset = new Animated.Value(0);
-export default class App extends Component {
+class CardScroll extends Component {
   constructor(props) {
     super(props);
     const flashcards = [];
@@ -48,15 +49,9 @@ export default class App extends Component {
 
   async componentDidMount() {
     xOffset = new Animated.Value(0);
-    const {
-      navigation: {
-        state: {
-          params: { nameOfDeck }
-        }
-      }
-    } = this.props;
+    const { selectedCardDeck } = this.props;
 
-    const cards = AsyncStorage.getDeckList(nameOfDeck);
+    const cards = AsyncStorage.getDeckList(selectedCardDeck);
     cards.then(cards => {
       this.setState({
         flipped: this.state.flashcards.map(() => false),
@@ -71,6 +66,22 @@ export default class App extends Component {
         useNativeDriver: false
       }
     );
+  }
+
+  async componentDidUpdate(prevProps) {
+    if (this.props.selectedCardDeck !== prevProps.selectedCardDeck) {
+      const { selectedCardDeck } = this.props;
+      this.flipValue.setValue(0);
+
+      const cards = AsyncStorage.getDeckList(selectedCardDeck);
+      cards.then(cards => {
+        this.setState({
+          flipped: this.state.flashcards.map(() => false),
+          deckLength: this.state.flashcards.length,
+          flashcards: cards.flashcards
+        });
+      });
+    }
   }
 
   renderCard = (question, index) => {
@@ -244,3 +255,7 @@ const styles = StyleSheet.create({
     backfaceVisibility: 'hidden'
   }
 });
+
+const FlashcardScroll = withNavigationContextConsumer(CardScroll);
+
+export default FlashcardScroll;

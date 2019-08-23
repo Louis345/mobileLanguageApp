@@ -3,26 +3,22 @@ import { View, Text, StyleSheet, Animated } from 'react-native';
 
 export default class ProgressBar extends React.PureComponent {
   state = {
-    percent: 0,
+    percent: null,
     progressAnimation: new Animated.Value(0),
     isAnimationInProgress: false
   };
 
   static getDerivedStateFromProps(props, state) {
-    console.log({ props });
-    console.log({ state });
     if (props.percent !== state.percent) {
       return {
-        percent: state.percent
+        percent: props.percent
       };
     }
     return null;
   }
 
   componentDidUpdate(prevProps) {
-    console.log({ prevProps });
-    console.log(this.state.percent);
-    if (prevs.percent !== this.state.percent) {
+    if (this.props.percent !== prevProps.percent) {
       this.onAnimate();
     }
   }
@@ -32,30 +28,27 @@ export default class ProgressBar extends React.PureComponent {
   }
   onAnimate = () => {
     Animated.timing(this.progressAnimation, {
-      toValue: 20,
+      toValue: this.props.percent,
       duration: 1000,
       useNativeDriver: true
     }).start();
 
     this.progressAnimation.addListener(({ value }) => {
       this.setState({
-        percent: value
+        percent: value,
+        animationValue: value
       });
     });
   };
-  componentDidUpdate() {
-    console.log();
-  }
+
   render() {
-    const { animateStart, isAnimationInProgress } = this.props;
-    let percent = null;
-    if (this.progressAnimation) {
-      percent = this.progressAnimation._value;
-      console.log({ percent });
-    }
+    const { animationValue } = this.state;
+
     return (
       <View style={styles.container}>
-        <Animated.View style={[styles.inner, { width: `${percent}%` }]} />
+        <Animated.View
+          style={[styles.inner, { width: `${animationValue}%` }]}
+        />
       </View>
     );
   }
@@ -74,6 +67,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: '#ffd600',
     height: 14,
-    borderRadius: 15
+    borderRadius: 15,
+    overflow: 'hidden'
   }
 });

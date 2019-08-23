@@ -79,11 +79,10 @@ export default class QRScanner extends Component {
   };
 
   render() {
-    console.log(CardFixture[0].flashcards);
-    this.props.navigation.navigate('CreateDeck', {
-      flashcards: CardFixture[0].flashcards,
-      title: 'deckTest'
-    });
+    // this.props.navigation.navigate('CreateDeck', {
+    //   flashcards: CardFixture[0].flashcards,
+    //   title: 'deckTest'
+    // });
     return (
       <View style={styles.container}>
         {this.state.hasCameraPermission === null ? (

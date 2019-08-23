@@ -1,13 +1,16 @@
 import React from 'react';
-import { StyleSheet, SafeAreaView } from 'react-native';
+import { StyleSheet, SafeAreaView, View } from 'react-native';
 import Router from './router/Router';
+import { NavigationContextProvider } from './context/navigation_context';
 
-export default class App extends React.Component {
+export default class App extends React.PureComponent {
   render() {
     return (
-      <SafeAreaView style={{ flex: 1 }}>
-        <Router />
-      </SafeAreaView>
+      <View style={{ flex: 1 }}>
+        <NavigationContextProvider>
+          <Router />
+        </NavigationContextProvider>
+      </View>
     );
   }
 }

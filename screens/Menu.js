@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Dimensions
 } from 'react-native';
-
+import withNavigationContextConsumer from '../context/with-navigation-context-consumer';
 const SCREEN_WIDTH = Dimensions.get('window').width;
 import Card from '../components/Card/Card';
 import { onScroll } from '../util/animationHelper';
@@ -18,7 +18,7 @@ import { lightBlue, cardWidth, cardMargin } from '../styles/styles';
 const yourDeckXOffset = new Animated.Value(0);
 const favoritesXOffset = new Animated.Value(0);
 const cardWithPadding = cardWidth + cardMargin * 2;
-export default class Menu extends React.PureComponent {
+class DeckMenu extends React.PureComponent {
   state = {
     deckList: []
   };
@@ -71,11 +71,10 @@ export default class Menu extends React.PureComponent {
               return (
                 <TouchableOpacity
                   key={index}
-                  onPress={() =>
-                    this.props.navigation.navigate('LessonsMenu', {
-                      nameOfDeck: deckName
-                    })
-                  }
+                  onPress={() => {
+                    this.props.setSelectedCardDeck(deckName);
+                    this.props.navigation.navigate('Cards');
+                  }}
                 >
                   <View>
                     <Card
@@ -121,7 +120,9 @@ export default class Menu extends React.PureComponent {
     );
   }
 }
+const Menu = withNavigationContextConsumer(DeckMenu);
 
+export default Menu;
 const styles = StyleSheet.create({
   container: {
     flex: 1

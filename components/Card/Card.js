@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, Animated } from 'react-native';
 import { cardMargin } from '../../styles/styles.js';
-
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
 const transitionAnimation = (index, xOffset) => {
