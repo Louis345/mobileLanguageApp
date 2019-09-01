@@ -14,14 +14,13 @@ export default class ActionSheet extends React.Component {
   };
 
   componentDidUpdate() {
-    const {
-      input,
-      input: { FirstInput },
-      animatePanel,
-      resetInput
-    } = this.props;
-
-    animatePanel && input ? FirstInput.focus() : FirstInput.blur();
+    const { input, animatePanel, resetInput } = this.props;
+    console.log({ input });
+    if (input) {
+      animatePanel && input
+        ? input.FirstInput.focus()
+        : input.FirstInput.blur();
+    }
     resetInput && FirstInput.clear();
   }
 
@@ -74,7 +73,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: Dimensions.get('window').height,
-    flex: 1
+    flex: 1,
+    zIndex: 2
   },
   popup: {
     marginHorizontal: 10,

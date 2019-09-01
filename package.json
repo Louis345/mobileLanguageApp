@@ -17,7 +17,10 @@
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
     "react-native-dash": "^0.0.9",
     "react-native-elements": "^1.1.0",
-    "react-navigation": "^3.11.0"
+    "react-navigation": "^3.11.0",
+    "flubber": "^0.4.2",
+    "popmotion": "^8.6.3",
+    "react-native-css-gradient": "^0.3.1"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0",

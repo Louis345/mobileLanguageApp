@@ -6,10 +6,10 @@ import {
   createBottomTabNavigator,
   createMaterialTopTabNavigator
 } from 'react-navigation';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { AntDesign, FontAwesome, Ionicons } from '@expo/vector-icons';
-import { lightBlue } from '../styles/styles';
+import { summerSky } from '../styles/styles';
 import Menu from '../screens/Menu';
 import Profile from '../screens/Profile';
 import CreateDeck from '../screens/CreateDeck';
@@ -18,6 +18,7 @@ import QRScanner from '../screens/QRScanner';
 import FlashcardScroll from '../screens/FlashcardScroll';
 import LessonsMenu from '../screens/LessonsMenu';
 import Quiz from '../screens/Quiz';
+import MenuStart from '../screens/MenuStart';
 
 const topNavigator = createMaterialTopTabNavigator(
   {
@@ -34,14 +35,14 @@ const topNavigator = createMaterialTopTabNavigator(
   {
     swipeEnabled: false,
     tabBarOptions: {
-      activeTintColor: '#32CDFF',
+      activeTintColor: summerSky,
       inactiveTintColor: '#ddd',
       showLabel: true,
       style: {
         backgroundColor: 'white'
       },
       indicatorStyle: {
-        backgroundColor: '#32CDFF'
+        backgroundColor: summerSky
       },
       labelStyle: {
         fontSize: 15,
@@ -54,6 +55,7 @@ const topNavigator = createMaterialTopTabNavigator(
 const headerForTabs = createStackNavigator({
   Home: {
     screen: topNavigator,
+    swipeEnabled: false,
     navigationOptions: ({ navigation }) => {
       return {
         headerStyle: {
@@ -61,13 +63,21 @@ const headerForTabs = createStackNavigator({
           height: 20
         },
         headerLeftContainerStyle: {
-          marginLeft: 30
+          marginLeft: 30,
+          marginRight: 30,
+          flex: 1
         },
         headerLeft: () => {
           return (
-            <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
-              <FontAwesome name="long-arrow-left" size={20} color={lightBlue} />
-            </TouchableOpacity>
+            <View>
+              <TouchableOpacity onPress={() => navigation.navigate('Menu')}>
+                <FontAwesome
+                  name="long-arrow-left"
+                  size={20}
+                  color={summerSky}
+                />
+              </TouchableOpacity>
+            </View>
           );
         }
       };
@@ -151,8 +161,6 @@ const bottomNavigator = createBottomTabNavigator({
   }
 });
 
-topNavigator.navigationOptions = () => {};
-
 stackNavigator.navigationOptions = ({ navigation }) => {
   let tabBarVisible = true;
 
@@ -168,7 +176,8 @@ stackNavigator.navigationOptions = ({ navigation }) => {
   }
 
   return {
-    tabBarVisible
+    tabBarVisible,
+    swipeEnabled: false
   };
 };
 

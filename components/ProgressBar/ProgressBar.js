@@ -41,6 +41,21 @@ export default class ProgressBar extends React.PureComponent {
     });
   };
 
+  resetProgressBar() {
+    Animated.timing(this.progressAnimation, {
+      toValue: 0,
+      duration: 500,
+      useNativeDriver: true
+    }).start();
+
+    this.progressAnimation.addListener(({ value }) => {
+      this.setState({
+        percent: value,
+        animationValue: value
+      });
+    });
+  }
+
   render() {
     const { animationValue } = this.state;
 
