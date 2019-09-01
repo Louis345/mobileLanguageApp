@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Text,
   View,
@@ -6,25 +6,25 @@ import {
   Animated,
   TouchableOpacity,
   StyleSheet
-} from 'react-native';
-import withNavigationContextConsumer from '../context/with-navigation-context-consumer';
-import Card from '../components/Card/Card';
-import { lightBlue, cardWidth } from '../styles/styles';
-import AsyncStorage from '../util/fetchData';
-import ProgressBar from '../components/ProgressBar/ProgressBar';
-import LottieView from 'lottie-react-native';
-import MS from 'memory-scheduler';
-import Gradient from 'react-native-css-gradient';
+} from "react-native";
+import withNavigationContextConsumer from "../context/with-navigation-context-consumer";
+import Card from "../components/Card/Card";
+import { lightBlue, cardWidth } from "../styles/styles";
+import AsyncStorage from "../util/fetchData";
+import ProgressBar from "../components/ProgressBar/ProgressBar";
+import LottieView from "lottie-react-native";
+import MS from "memory-scheduler";
+import Gradient from "react-native-css-gradient";
 const SessionIntervalsinDays = [2, 3, 5, 8, 17, 30, 60, 90, 180, 360];
 const QuizResultToProgress = [-1, 1];
 const DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000;
 const GetTodayDayNumber = Math.round(new Date().getTime() / DAY_IN_MILISECONDS);
 const GRADIENTS = {
-  upset: 'linear-gradient(to bottom, rgb(231, 97, 97), rgb(236, 49, 49))',
-  sad: 'linear-gradient(to bottom, rgb(247,152,48), rgb(231, 97, 97))',
-  neutral: 'linear-gradient(to bottom, rgb(243, 189, 67), rgb(203,96,32))',
-  smile: 'linear-gradient(to bottom, rgb(238,172,77), rgb(187, 230, 95))',
-  excited: 'linear-gradient(to bottom, rgb(95,230,118), rgb(46, 232, 78))'
+  upset: "linear-gradient(to bottom, rgb(231, 97, 97), rgb(236, 49, 49))",
+  sad: "linear-gradient(to bottom, rgb(247,152,48), rgb(231, 97, 97))",
+  neutral: "linear-gradient(to bottom, rgb(243, 189, 67), rgb(203,96,32))",
+  smile: "linear-gradient(to bottom, rgb(238,172,77), rgb(187, 230, 95))",
+  excited: "linear-gradient(to bottom, rgb(95,230,118), rgb(46, 232, 78))"
 };
 class FlashCardQuiz extends React.PureComponent {
   state = {
@@ -47,7 +47,7 @@ class FlashCardQuiz extends React.PureComponent {
     this.setState(
       {
         deck: deck.flashcards,
-        cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+        cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
       },
       () => {
         this.generateQuestions();
@@ -66,7 +66,7 @@ class FlashCardQuiz extends React.PureComponent {
       this.setState(
         {
           deck: deck.flashcards,
-          cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+          cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
         },
         () => {
           this.generateQuestions();
@@ -90,7 +90,7 @@ class FlashCardQuiz extends React.PureComponent {
         {
           isAnswerCompleted: true,
           currentlyViewedCard: ++this.state.currentlyViewedCard,
-          cardSide: Math.floor(Math.random() * 2) === 1 ? 'front' : 'back'
+          cardSide: Math.floor(Math.random() * 2) === 1 ? "front" : "back"
         },
         () => {
           this.newAnswerStartAnimation();
@@ -105,7 +105,7 @@ class FlashCardQuiz extends React.PureComponent {
   generateQuestions = () => {
     const { currentlyViewedCard, deck, cardSide } = this.state;
     const NumberOfAnswersToBeRemoved = deck.length - 1 - 3;
-    const randomPlaceToInsertAnswer = Math.floor(Math.random() * 2);
+    const randomPlaceToInsertAnswer = Math.floor(Math.random() * 3);
 
     let removedAnswerFromDeck = deck.filter((flashcard, index) => {
       if (index !== currentlyViewedCard) {
@@ -125,7 +125,7 @@ class FlashCardQuiz extends React.PureComponent {
     this.setState({
       currentQuestions: questions,
       currentAnswer:
-        deck[currentlyViewedCard][cardSide === 'front' ? 'back' : 'front']
+        deck[currentlyViewedCard][cardSide === "front" ? "back" : "front"]
     });
   };
 
@@ -170,7 +170,7 @@ class FlashCardQuiz extends React.PureComponent {
           ) : (
             <View
               style={{
-                position: 'relative',
+                position: "relative",
                 height: 300,
                 width: cardWidth
               }}
@@ -178,12 +178,12 @@ class FlashCardQuiz extends React.PureComponent {
               <Animated.View
                 style={[
                   {
-                    position: 'absolute',
-                    backgroundColor: 'green',
+                    position: "absolute",
+                    backgroundColor: "green",
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    width: '100%',
+                    width: "100%",
                     borderRadius: 20
                   },
                   AnimatedStyles
@@ -204,8 +204,8 @@ class FlashCardQuiz extends React.PureComponent {
                       ]}
                       source={
                         isAnswerCorrect
-                          ? require('../assets/correct.json')
-                          : require('../assets/wrong.json')
+                          ? require("../assets/correct.json")
+                          : require("../assets/wrong.json")
                       }
                     />
                   </View>
@@ -221,20 +221,20 @@ class FlashCardQuiz extends React.PureComponent {
   displayAnswerAnimation = userSelectedAnswer => {
     const { currentAnswer, cardSide, deck, currentlyViewedCard } = this.state;
 
-    deck[currentlyViewedCard]['isCorrect'] = false;
-    if (cardSide === 'front') {
+    deck[currentlyViewedCard]["isCorrect"] = false;
+    if (cardSide === "front") {
       if (userSelectedAnswer.back === currentAnswer) {
-        deck[currentlyViewedCard]['isCorrect'] = true;
+        deck[currentlyViewedCard]["isCorrect"] = true;
       }
     } else {
       if (userSelectedAnswer.front === currentAnswer) {
-        deck[currentlyViewedCard]['isCorrect'] = true;
+        deck[currentlyViewedCard]["isCorrect"] = true;
       }
     }
     this.setState(
       {
         showAnwser: true,
-        isAnswerCorrect: deck[currentlyViewedCard]['isCorrect']
+        isAnswerCorrect: deck[currentlyViewedCard]["isCorrect"]
       },
       () => {
         Animated.timing(this.state.answerAnimation, {
@@ -264,7 +264,7 @@ class FlashCardQuiz extends React.PureComponent {
           onPress={() => this.displayAnswerAnimation(question)}
         >
           <Text style={styles.questionText}>
-            {question[cardSide === 'back' ? 'front' : 'back']}
+            {question[cardSide === "back" ? "front" : "back"]}
           </Text>
         </TouchableOpacity>
       );
@@ -273,10 +273,10 @@ class FlashCardQuiz extends React.PureComponent {
 
   DayNumberToMMDDYY = time => {
     let DateTime = new Date(parseInt(time * DAY_IN_MILISECONDS, 10));
-    let dd = String(DateTime.getDate()).padStart(2, '0');
-    let mm = String(DateTime.getMonth() + 1).padStart(2, '0'); //January is 0!
+    let dd = String(DateTime.getDate()).padStart(2, "0");
+    let mm = String(DateTime.getMonth() + 1).padStart(2, "0"); //January is 0!
     let yyyy = DateTime.getFullYear();
-    let today = mm + '/' + dd + '/' + yyyy;
+    let today = mm + "/" + dd + "/" + yyyy;
     return today;
   };
 
@@ -291,10 +291,10 @@ class FlashCardQuiz extends React.PureComponent {
         GetTodayDayNumber
       );
       console.log({ newRecord });
-      flashcard['progress'] = newRecord.progress;
-      flashcard['dueDate'] =
+      flashcard["progress"] = newRecord.progress;
+      flashcard["dueDate"] =
         newRecord.progress > SessionIntervalsinDays.length
-          ? 'never'
+          ? "never"
           : this.DayNumberToMMDDYY(newRecord.dueDate);
       console.log({ flashcard });
       return flashcard;
@@ -343,9 +343,9 @@ class FlashCardQuiz extends React.PureComponent {
         <View
           style={{
             flex: 0.1,
-            justifyContent: 'center',
-            marginLeft: '10%',
-            marginRight: '10%'
+            justifyContent: "center",
+            marginLeft: "10%",
+            marginRight: "10%"
           }}
         >
           <ProgressBar percent={this.state.progress} animateStart={true} />
@@ -359,7 +359,7 @@ class FlashCardQuiz extends React.PureComponent {
           ]}
         >
           {!isQuizComplete && deck && deck.length > 0 && this.renderCards()}
-          <View style={{ justifyContent: 'center', width: '90%' }}>
+          <View style={{ justifyContent: "center", width: "90%" }}>
             {!isQuizComplete &&
               deck &&
               deck.length > 0 &&
@@ -374,8 +374,8 @@ class FlashCardQuiz extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 0.9,
-    alignItems: 'center',
-    justifyContent: 'space-evenly'
+    alignItems: "center",
+    justifyContent: "space-evenly"
   },
   question: {
     borderRadius: 10,
@@ -383,15 +383,15 @@ const styles = StyleSheet.create({
     borderColor: lightBlue,
     height: 60,
     marginBottom: 5,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center"
   },
   questionText: {
-    textAlign: 'center',
-    fontWeight: 'bold',
+    textAlign: "center",
+    fontWeight: "bold",
     color: lightBlue,
     fontSize: 20,
-    width: '100%'
+    width: "100%"
   }
 });
 
