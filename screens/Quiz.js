@@ -116,7 +116,7 @@ class FlashCardQuiz extends React.PureComponent {
   generateQuestions = () => {
     const { currentlyViewedCard, deck, cardSide } = this.state;
     const NumberOfAnswersToBeRemoved = deck.length - 1 - 3;
-    const randomPlaceToInsertAnswer = Math.floor(Math.random() * 2);
+    const randomPlaceToInsertAnswer = Math.floor(Math.random() * 3);
 
     let removedAnswerFromDeck = deck.filter((flashcard, index) => {
       if (index !== currentlyViewedCard) {
@@ -322,7 +322,6 @@ class FlashCardQuiz extends React.PureComponent {
         flashcard,
         GetTodayDayNumber
       );
-
       flashcard["progress"] = newRecord.progress;
       flashcard["dueDate"] =
         newRecord.progress > SessionIntervalsinDays.length

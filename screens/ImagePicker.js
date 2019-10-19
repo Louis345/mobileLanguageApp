@@ -8,7 +8,13 @@ import FormData from "form-data";
 export default class ImagePicker extends React.Component {
   componentDidMount() {
     this.getPermissionAsync();
-    console.log(this.props);
+    const {
+      navigation: {
+        state: {
+          params: { scrollToCard }
+        }
+      }
+    } = this.props;
   }
 
   state = {
