@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   Animated,
   Dimensions,
@@ -6,11 +6,15 @@ import {
   Text,
   View,
   TouchableWithoutFeedback
-} from 'react-native';
-import AsyncStorage from '../util/fetchData';
-import withNavigationContextConsumer from '../context/with-navigation-context-consumer';
-const SCREEN_WIDTH = Dimensions.get('window').width;
+} from "react-native";
+import AsyncStorage from "../util/fetchData";
+import withNavigationContextConsumer from "../context/with-navigation-context-consumer";
+import Speech from "../components/HOC/Speech";
+const SCREEN_WIDTH = Dimensions.get("window").width;
 let xOffset = new Animated.Value(0);
+let counter = null;
+import { MaterialIcons } from "@expo/vector-icons";
+import { summerSky } from "../styles/styles";
 class CardScroll extends Component {
   constructor(props) {
     super(props);
@@ -29,7 +33,7 @@ class CardScroll extends Component {
         {
           rotateY: this.flipValue.interpolate({
             inputRange: [0, 1],
-            outputRange: ['0deg', '180deg']
+            outputRange: ["0deg", "180deg"]
           })
         }
       ]
@@ -40,7 +44,7 @@ class CardScroll extends Component {
         {
           rotateY: this.flipValue.interpolate({
             inputRange: [0, 1],
-            outputRange: ['180deg', '360deg']
+            outputRange: ["180deg", "360deg"]
           })
         }
       ]
@@ -49,6 +53,7 @@ class CardScroll extends Component {
 
   async componentDidMount() {
     xOffset = new Animated.Value(0);
+    this.currentlyViewedCard = 0;
     const { selectedCardDeck } = this.props;
 
     const cards = AsyncStorage.getDeckList(selectedCardDeck);
@@ -61,7 +66,14 @@ class CardScroll extends Component {
     });
 
     this.onScroll = Animated.event(
-      [{ nativeEvent: { contentOffset: { x: xOffset } } }],
+      [
+        {
+          nativeEvent: {
+            contentOffset: { x: xOffset }
+          }
+        }
+      ],
+
       {
         useNativeDriver: false
       }
@@ -84,7 +96,7 @@ class CardScroll extends Component {
     }
   }
 
-  renderCard = (question, index) => {
+  renderCard = (card, index) => {
     const { flashcards } = this.state;
 
     flashcards &&
@@ -108,7 +120,7 @@ class CardScroll extends Component {
                 index * SCREEN_WIDTH,
                 (index + 1) * SCREEN_WIDTH
               ],
-              outputRange: ['45deg', '0deg', '45deg']
+              outputRange: ["45deg", "0deg", "45deg"]
             })
           },
           {
@@ -118,7 +130,7 @@ class CardScroll extends Component {
                 index * SCREEN_WIDTH,
                 (index + 1) * SCREEN_WIDTH
               ],
-              outputRange: ['-45deg', '0deg', '45deg']
+              outputRange: ["-45deg", "0deg", "45deg"]
             })
           }
         ]
@@ -131,6 +143,8 @@ class CardScroll extends Component {
           <View style={styles.scrollPage}>
             <TouchableWithoutFeedback
               onPress={() => {
+                card.isCardFlipped = !card.isCardFlipped;
+                console.log(card);
                 this.flipCard(index);
               }}
             >
@@ -144,7 +158,7 @@ class CardScroll extends Component {
                       styles.screen
                     ]}
                   >
-                    <Text style={styles.text}>{flashcards[index].front}</Text>
+                    <Text style={[styles.text]}>{flashcards[index].front}</Text>
                   </Animated.View>
                 )}
 
@@ -199,6 +213,22 @@ class CardScroll extends Component {
 
     return (
       <View style={styles.container}>
+        <TouchableWithoutFeedback
+          onPress={async () => {
+            const response = await this.props.createWord(
+              !flashcards[this.currentlyViewedCard].isCardFlipped
+                ? flashcards[this.currentlyViewedCard].front
+                : flashcards[this.currentlyViewedCard].back
+            );
+            if (response) this.props.speak();
+          }}
+        >
+          <MaterialIcons
+            name="play-circle-outline"
+            size={30}
+            color={summerSky}
+          />
+        </TouchableWithoutFeedback>
         <Animated.ScrollView
           scrollEnabled={!this.state.flipping}
           scrollEventThrottle={16}
@@ -207,6 +237,20 @@ class CardScroll extends Component {
           pagingEnabled
           style={styles.scrollView}
           ref={ref => (this.scrollView = ref)}
+          onMomentumScrollEnd={(event, index) => {
+            // scroll animation ended
+            const currentOffset = event.nativeEvent.contentOffset.x;
+            const dif = currentOffset - (this.offset || 0);
+
+            if (Math.abs(dif) < 3) {
+            } else if (dif < 0) {
+              this.currentlyViewedCard = this.currentlyViewedCard - 1;
+            } else {
+              this.currentlyViewedCard = this.currentlyViewedCard + 1;
+            }
+            console.log(this.currentlyViewedCard);
+            this.offset = currentOffset;
+          }}
         >
           {flashcards && flashcards.map(this.renderCard)}
         </Animated.ScrollView>
@@ -217,15 +261,15 @@ class CardScroll extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'black',
+    backgroundColor: "black",
     flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center'
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center"
   },
   scrollView: {
-    flexDirection: 'row',
-    backgroundColor: 'black'
+    flexDirection: "row",
+    backgroundColor: "black"
   },
 
   scrollPage: {
@@ -234,28 +278,28 @@ const styles = StyleSheet.create({
   },
   screen: {
     height: 400,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 25,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     width: SCREEN_WIDTH - 20 * 2,
-    backfaceVisibility: 'hidden'
+    backfaceVisibility: "hidden"
   },
   text: {
     fontSize: 45,
-    fontWeight: 'bold'
+    fontWeight: "bold"
   },
   iconStyle: {
-    flexDirection: 'row',
-    justifyContent: 'center'
+    flexDirection: "row",
+    justifyContent: "center"
   },
   back: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    backfaceVisibility: 'hidden'
+    backfaceVisibility: "hidden"
   }
 });
 
-const FlashcardScroll = withNavigationContextConsumer(CardScroll);
+const FlashcardScroll = Speech(withNavigationContextConsumer(CardScroll));
 
 export default FlashcardScroll;

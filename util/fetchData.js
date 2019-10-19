@@ -11,12 +11,11 @@ const api = {
       return error;
     }
   },
-  async setDeck(title, flashcards) {
+  async setDeck(title, date, flashcards) {
     let isDeckSaved = null;
     const item = {
-      [title]: {
-        title
-      },
+      title,
+      date,
       flashcards
     };
 
@@ -27,16 +26,31 @@ const api = {
       return error;
     }
   },
+  async getAllDecks() {
+    try {
+      const keys = await AsyncStorage.getAllKeys();
+      const itemsArray = await AsyncStorage.multiGet(keys);
+
+      const flashcardsDeck = itemsArray.reduce((acc, item) => {
+        acc.push(JSON.parse(item[1]));
+        return acc;
+      }, []);
+
+      return flashcardsDeck;
+    } catch (error) {
+      console.log(error, 'error');
+    }
+  },
   getDecks() {
     const decks = AsyncStorage.getAllKeys();
     return decks;
   },
-  checkSavedTitles(title, callback) {
+  checkSavedTitles(title) {
     const listPromise = AsyncStorage.getAllKeys();
     let status = null;
     listPromise.then(list => {
       status = list.findIndex(key => key === title);
-      callback(status);
+      return status;
     });
   },
   removeNotificationSync(list) {

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   Animated,
   Text,
@@ -6,8 +6,8 @@ import {
   StyleSheet,
   View,
   Dimensions
-} from 'react-native';
-const screenHeight = Dimensions.get('window').height;
+} from "react-native";
+const screenHeight = Dimensions.get("window").height;
 export default class ActionSheet extends React.Component {
   state = {
     animation: new Animated.Value(0)
@@ -15,7 +15,6 @@ export default class ActionSheet extends React.Component {
 
   componentDidUpdate() {
     const { input, animatePanel, resetInput } = this.props;
-    console.log({ input });
     if (input) {
       animatePanel && input
         ? input.FirstInput.focus()
@@ -49,7 +48,7 @@ export default class ActionSheet extends React.Component {
           translateY: this.state.animation.interpolate({
             inputRange: [0.01, 1],
             outputRange: [0, -1 * screenHeight],
-            extrapolate: 'clamp'
+            extrapolate: "clamp"
           })
         }
       ]
@@ -69,10 +68,10 @@ const styles = StyleSheet.create({
     borderRadius: 30
   },
   sheet: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
-    top: Dimensions.get('window').height,
+    top: Dimensions.get("window").height,
     flex: 1,
     zIndex: 2
   },
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
     height: screenHeight,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2

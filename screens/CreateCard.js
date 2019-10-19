@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -8,12 +8,12 @@ import {
   Dimensions,
   Animated,
   Keyboard
-} from 'react-native';
-import Card from '../components/Card/Card';
-import ActionSheet from '../components/ActionSheet/ActionSheet';
-import { lightBlue, cardWidth, cardMargin } from '../styles/styles';
-import { Input, Button } from 'react-native-elements';
-import { Entypo } from '@expo/vector-icons';
+} from "react-native";
+import Card from "../components/Card/Card";
+import ActionSheet from "../components/ActionSheet/ActionSheet";
+import { lightBlue, cardWidth, cardMargin } from "../styles/styles";
+import { Input, Button } from "react-native-elements";
+import { Entypo } from "@expo/vector-icons";
 
 const cardWithPadding = cardWidth + cardMargin * 2;
 export default class CreateCard extends React.Component {
@@ -27,8 +27,8 @@ export default class CreateCard extends React.Component {
     flashcards: [
       {
         isCardFlipped: false,
-        front: '',
-        back: ''
+        front: "",
+        back: ""
       }
     ],
     flashcardsPosition: [],
@@ -36,12 +36,12 @@ export default class CreateCard extends React.Component {
     offset: {},
     currentlyViewedCard: 0,
     isCardFlipped: false,
-    userInput: '',
+    userInput: "",
     scrollToCard: null
   };
 
   async componentDidMount() {
-    this.focusListener = this.props.navigation.addListener('didFocus', () => {
+    this.focusListener = this.props.navigation.addListener("didFocus", () => {
       this.onFocusFunction();
     });
   }
@@ -83,8 +83,8 @@ export default class CreateCard extends React.Component {
     const newFlashCards = [...this.state.flashcards];
     newFlashCards.push({
       isCardFlipped: false,
-      front: '',
-      back: ''
+      front: "",
+      back: ""
     });
     this.setState(
       {
@@ -175,7 +175,7 @@ export default class CreateCard extends React.Component {
     this.setState(
       {
         flashcards: updatedCards,
-        userInput: ''
+        userInput: ""
       },
       () => {
         Keyboard.dismiss();
@@ -259,29 +259,29 @@ export default class CreateCard extends React.Component {
   render() {
     const actionSheetHeight = {
       top:
-        Dimensions.get('window').height -
-        Dimensions.get('window').height * -0.05
+        Dimensions.get("window").height -
+        Dimensions.get("window").height * -0.05
     };
     const { flashcards, currentlyViewedCard, userInput } = this.state;
     const { navigation } = this.props;
 
     if (flashcards[currentlyViewedCard]) {
       cardFacingPosition = flashcards[currentlyViewedCard].isCardFlipped
-        ? 'back'
-        : 'front';
+        ? "back"
+        : "front";
     } else {
       cardFacingPosition = flashcards[currentlyViewedCard - 1].isCardFlipped
-        ? 'back'
-        : 'front';
+        ? "back"
+        : "front";
     }
 
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'space-between' }}>
+      <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
         <View style={styles.container}>
           <TouchableOpacity
             onPress={() =>
               flashcards.length === 1
-                ? navigation.navigate('CreateDeck')
+                ? navigation.navigate("CreateDeck")
                 : this.handleDeleteCard()
             }
           >
@@ -296,7 +296,7 @@ export default class CreateCard extends React.Component {
           </View>
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('CreateDeck', {
+              navigation.navigate("CreateDeck", {
                 flashcards: [...this.state.flashcards]
               })
             }
@@ -312,7 +312,7 @@ export default class CreateCard extends React.Component {
             ref={scroller => {
               this.scroller = scroller;
             }}
-            snapToAlignment={'center'}
+            snapToAlignment={"center"}
             snapToInterval={cardWithPadding}
             contentInset={{
               top: 0,
@@ -329,6 +329,7 @@ export default class CreateCard extends React.Component {
               }
             }}
             scrollEventThrottle={16}
+            scrollToOverflowEnabled={true}
           >
             {flashcards.map((flashcard, index) => {
               return (
@@ -362,17 +363,17 @@ export default class CreateCard extends React.Component {
                       style={{
                         height: 250,
                         borderRadius: 20,
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        justifyContent: "center",
+                        alignItems: "center"
                       }}
                       SideB={
-                        flashcard.back === '' ? 'Enter Text' : flashcard.back
+                        flashcard.back === "" ? "Enter Text" : flashcard.back
                       }
                     >
                       <View>
                         <Text>
-                          {flashcard.front === ''
-                            ? 'Enter Text'
+                          {flashcard.front === ""
+                            ? "Enter Text"
                             : flashcard.front}
                         </Text>
                       </View>
@@ -392,7 +393,7 @@ export default class CreateCard extends React.Component {
             </TouchableOpacity>
           </Animated.ScrollView>
         </View>
-        <Button title={'Flip'} small onPress={() => this.handleCardFlip()} />
+        <Button title={"Flip"} small onPress={() => this.handleCardFlip()} />
         <ActionSheet
           animatePanel={this.state.isPanelOpen}
           height={actionSheetHeight}
@@ -400,7 +401,7 @@ export default class CreateCard extends React.Component {
         >
           <View style={[styles.createTitle]}>
             <View style={[styles.header, styles.center]}>
-              <Text style={[styles.headerButtonText, { marginRight: 'auto' }]}>
+              <Text style={[styles.headerButtonText, { marginRight: "auto" }]}>
                 Edit Front
               </Text>
               <TouchableOpacity
@@ -443,35 +444,35 @@ export default class CreateCard extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly'
+    flexDirection: "row",
+    justifyContent: "space-evenly"
   },
   headerText: {
     color: lightBlue,
-    fontWeight: 'bold'
+    fontWeight: "bold"
   },
   bodyContainer: {
-    alignItems: 'center'
+    alignItems: "center"
   },
   placeHolder: {
-    justifyContent: 'center',
-    alignItems: 'flex-start'
+    justifyContent: "center",
+    alignItems: "flex-start"
   },
   center: {
-    textAlign: 'center',
-    justifyContent: 'center'
+    textAlign: "center",
+    justifyContent: "center"
   },
   headerButtonText: {
     color: lightBlue,
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: "bold"
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "flex-start",
     margin: 10
   },
   contentContainer: {
-    flexDirection: 'row'
+    flexDirection: "row"
   }
 });

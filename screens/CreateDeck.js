@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   SafeAreaView,
   Text,
@@ -7,23 +7,23 @@ import {
   Dimensions,
   TouchableOpacity,
   Animated
-} from 'react-native';
-import { Input, Button } from 'react-native-elements';
-import AsyncStorage from '../util/fetchData';
+} from "react-native";
+import { Input, Button } from "react-native-elements";
+import AsyncStorage from "../util/fetchData";
 import {
   lightBlue,
   cardBoxShadow,
   cardWidth,
   cardMargin
-} from '../styles/styles';
+} from "../styles/styles";
 
-import { Entypo } from '@expo/vector-icons';
-import Card from '../components/Card/Card';
-import ActionSheet from '../components/ActionSheet/ActionSheet';
+import { Entypo } from "@expo/vector-icons";
+import Card from "../components/Card/Card";
+import ActionSheet from "../components/ActionSheet/ActionSheet";
 
 const cardWithPadding = cardWidth + cardMargin * 2;
 
-export default class CreateDeck extends React.Component {
+export default class CreateDeck extends React.PureComponent {
   state = {
     isInputFocused: false,
     openActionSheet: false
@@ -36,6 +36,14 @@ export default class CreateDeck extends React.Component {
     });
   };
 
+  componentWillUnmount() {
+    this.setState({
+      isInputFocused: false,
+      title: null,
+      openActionSheet: false
+    });
+  }
+
   static getDerivedStateFromProps(prevProps, prevState) {
     const {
       navigation: {
@@ -45,13 +53,13 @@ export default class CreateDeck extends React.Component {
       }
     } = prevProps;
 
-    if (prevState.title === '') {
+    if (prevState.title === "") {
       return {
-        title: ''
+        title: ""
       };
     }
 
-    if (title) {
+    if (title && !prevState.title) {
       return {
         title
       };
@@ -62,7 +70,7 @@ export default class CreateDeck extends React.Component {
       };
     }
     return {
-      title: ''
+      title: ""
     };
   }
 
@@ -98,26 +106,26 @@ export default class CreateDeck extends React.Component {
     const {
       navigation: {
         state: {
-          params: { flashcards }
+          params: { flashcards, date }
         }
       }
     } = this.props;
 
-    let response = await AsyncStorage.setDeck(title, flashcards);
+    let response = await AsyncStorage.setDeck(title, date, flashcards);
     if (!response) {
       this.setState(
         {
           title: null
         },
         () => {
-          this.props.navigation.navigate('Menu');
+          this.props.navigation.navigate("Menu");
         }
       );
     }
   };
 
   handleIconPress = () => {
-    this.props.navigation.navigate('CreateCard');
+    this.props.navigation.navigate("CreateCard");
   };
   renderCardList = () => {
     const {
@@ -133,10 +141,10 @@ export default class CreateDeck extends React.Component {
 
       <Animated.ScrollView
         contentContainerStyle={{
-          alignItems: 'center'
+          alignItems: "center"
         }}
         horizontal
-        snapToAlignment={'center'}
+        snapToAlignment={"center"}
         snapToInterval={cardWithPadding}
         contentInset={{
           top: 0,
@@ -147,25 +155,28 @@ export default class CreateDeck extends React.Component {
       >
         {flashcards.map((flashcard, index) => {
           return (
-            <TouchableOpacity onPress={() => this.handleCardFlip(index)}>
+            <TouchableOpacity
+              onPress={() => this.handleCardFlip(index)}
+              key={index}
+            >
               <Card
                 width={cardWidth}
                 style={{
                   height: 250
                 }}
-                SideB={flashcard.back === '' ? 'Enter Text' : flashcard.back}
+                SideB={flashcard.back === "" ? "Enter Text" : flashcard.back}
                 flipToSideA={flashcard.isCardFlipped}
                 flipToSideB={!flashcard.isCardFlipped}
               >
                 <View
                   style={{
                     height: 250,
-                    justifyContent: 'center',
-                    alignItems: 'center'
+                    justifyContent: "center",
+                    alignItems: "center"
                   }}
                 >
                   <Text>
-                    {flashcard.front === '' ? 'Enter Text' : flashcard.front}
+                    {flashcard.front === "" ? "Enter Text" : flashcard.front}
                   </Text>
                 </View>
               </Card>
@@ -174,7 +185,7 @@ export default class CreateDeck extends React.Component {
                   name="pencil"
                   size={30}
                   onPress={() =>
-                    this.props.navigation.navigate('CreateCard', {
+                    this.props.navigation.navigate("CreateCard", {
                       scrollToCard: index,
                       flashcards
                     })
@@ -195,22 +206,22 @@ export default class CreateDeck extends React.Component {
     );
   };
   render() {
-    const { isInputFocused } = this.state;
+    const { isInputFocused, title } = this.state;
     const {
       navigation: {
         state: { params }
       }
     } = this.props;
-
+    console.log(this.props);
     const inputIconStyles = {
-      type: 'font-awesome',
-      name: 'chevron-right',
-      color: '#D9D9D9'
+      type: "font-awesome",
+      name: "chevron-right",
+      color: "#D9D9D9"
     };
     const actionSheetHeight = {
       top:
-        Dimensions.get('window').height -
-        Dimensions.get('window').height * -0.05
+        Dimensions.get("window").height -
+        Dimensions.get("window").height * -0.05
     };
 
     return (
@@ -218,8 +229,8 @@ export default class CreateDeck extends React.Component {
         <View style={styles.header}>
           <TouchableOpacity
             onPress={() =>
-              this.setState({ title: '' }, () => {
-                this.props.navigation.navigate('Menu');
+              this.setState({ title: "" }, () => {
+                this.props.navigation.navigate("Menu");
               })
             }
           >
@@ -274,7 +285,7 @@ export default class CreateDeck extends React.Component {
         >
           <View style={[styles.createTitle]}>
             <View style={[styles.header, styles.center]}>
-              <Text style={[styles.headerButtonText, { marginRight: 'auto' }]}>
+              <Text style={[styles.headerButtonText, { marginRight: "auto" }]}>
                 Edit Title
               </Text>
               <TouchableOpacity
@@ -295,6 +306,7 @@ export default class CreateDeck extends React.Component {
                 ref={ref => {
                   this.FirstInput = ref;
                 }}
+                defaultValue={title}
               />
             </View>
           </View>
@@ -307,65 +319,65 @@ export default class CreateDeck extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    alignItems: 'center'
+    justifyContent: "center",
+    backgroundColor: "#fff",
+    alignItems: "center"
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "flex-start",
     margin: 10
   },
   createTitle: {
     flex: 1
   },
   headerText: {
-    textAlign: 'center',
+    textAlign: "center",
     flex: 0.9
   },
   cardPlaceHolderContainer: {
     flex: 0.4
   },
   center: {
-    textAlign: 'center',
-    justifyContent: 'center'
+    textAlign: "center",
+    justifyContent: "center"
   },
   cardPlaceHolderStyles: {
     height: 120,
     width: 100,
     marginTop: 0,
-    justifyContent: 'center',
+    justifyContent: "center",
     marginLeft: 10
   },
   headerButtonText: {
     color: lightBlue,
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: "bold"
   },
   textInput: {
     borderBottomWidth: 2,
-    borderBottomColor: '#EEEEEE'
+    borderBottomColor: "#EEEEEE"
   },
   headerContainer: {
-    flexDirection: 'row'
+    flexDirection: "row"
   },
   inputContainer: {
     flex: 0.6
   },
   bodyContainer: {
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    alignItems: "center",
+    justifyContent: "space-evenly",
     flex: 1
   },
   footer: {
     margin: 30
   },
   placeHolder: {
-    justifyContent: 'center',
-    alignItems: 'flex-start'
+    justifyContent: "center",
+    alignItems: "flex-start"
   },
   editIcon: {
-    position: 'absolute',
+    position: "absolute",
     left: cardWidth - 30,
     right: 0,
     bottom: 20,
@@ -376,7 +388,7 @@ const styles = StyleSheet.create({
     width: 250,
     borderRadius: 20,
     margin: 0,
-    justifyContent: 'center',
-    alignItems: 'center'
+    justifyContent: "center",
+    alignItems: "center"
   }
 });

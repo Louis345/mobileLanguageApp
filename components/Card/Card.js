@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyleSheet, View, Text, Dimensions, Animated } from 'react-native';
+import React from "react";
+import { StyleSheet, View, Text, Dimensions, Animated } from "react-native";
 
-import { cardMargin } from '../../styles/styles.js';
-const SCREEN_WIDTH = Dimensions.get('window').width;
+import { cardMargin } from "../../styles/styles.js";
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 const transitionAnimation = (index, xOffset) => {
   const previousPosition = ((index - 1) * SCREEN_WIDTH) / 2;
@@ -16,7 +16,7 @@ const transitionAnimation = (index, xOffset) => {
         scale: xOffset.interpolate({
           inputRange: [previousPosition, currentPosition, nextPosition],
           outputRange: [1, 1.3, 1],
-          extrapolate: 'clamp'
+          extrapolate: "clamp"
         })
       }
     ]
@@ -36,7 +36,7 @@ export default class Card extends React.Component {
         {
           rotateY: this.flipValue.interpolate({
             inputRange: [0, 1],
-            outputRange: ['0deg', '180deg']
+            outputRange: ["0deg", "180deg"]
           })
         }
       ]
@@ -47,7 +47,7 @@ export default class Card extends React.Component {
         {
           rotateY: this.flipValue.interpolate({
             inputRange: [0, 1],
-            outputRange: ['180deg', '360deg']
+            outputRange: ["180deg", "360deg"]
           })
         }
       ]
@@ -77,14 +77,12 @@ export default class Card extends React.Component {
       children,
       flipToSideA,
       flipToSideB,
-      onPress,
       SideB
     } = this.props;
 
     flipToSideA && this.flipToSideA();
     flipToSideB && this.flipToSideB();
 
-    onPress && onPress();
     return (
       <View>
         <Animated.View
@@ -107,6 +105,7 @@ export default class Card extends React.Component {
             styles.back,
             this.backAnimatedStyles
           ]}
+          pointerEvents="box-none"
         >
           {SideB && <Text>{SideB}</Text>}
         </Animated.View>
@@ -118,20 +117,20 @@ export default class Card extends React.Component {
 const styles = StyleSheet.create({
   card: {
     height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'white',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "white",
     width: SCREEN_WIDTH / 2,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
     margin: cardMargin,
-    backfaceVisibility: 'hidden',
+    backfaceVisibility: "hidden",
     borderRadius: 20
   },
   back: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    backfaceVisibility: 'hidden'
+    backfaceVisibility: "hidden"
   }
 });

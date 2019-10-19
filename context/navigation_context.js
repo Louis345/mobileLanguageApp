@@ -1,25 +1,30 @@
-import React from 'react';
+import React from "react";
 
 export const NavigationContext = React.createContext({});
 
 export class NavigationContextProvider extends React.Component {
   state = {
-    selectedCardDeck: 2
+    selectedCardDeck: 0,
+    hasUserAttemptedToExitQuiz: false,
+    selectedDeckLength: null
   };
 
-  setSelectedCardDeck = name => {
+  setSelectedCardDeck = (name, deckSize) => {
     this.setState({
-      selectedCardDeck: name
+      selectedCardDeck: name,
+      selectedDeckLength: deckSize
     });
   };
+
   render() {
-    const { selectedCardDeck } = this.state;
+    const { selectedCardDeck, selectedDeckLength } = this.state;
 
     return (
       <NavigationContext.Provider
         value={{
           selectedCardDeck,
-          setSelectedCardDeck: this.setSelectedCardDeck
+          setSelectedCardDeck: this.setSelectedCardDeck,
+          selectedDeckLength: selectedDeckLength
         }}
       >
         {this.props.children}
