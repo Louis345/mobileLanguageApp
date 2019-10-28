@@ -1,4 +1,4 @@
-import { AsyncStorage } from 'react-native';
+import { AsyncStorage } from "react-native";
 
 const api = {
   async getDeckList(key) {
@@ -21,10 +21,10 @@ const api = {
 
     try {
       isDeckSaved = await AsyncStorage.setItem(title, JSON.stringify(item));
-      return isDeckSaved;
     } catch (error) {
       return error;
     }
+    return isDeckSaved;
   },
   async getAllDecks() {
     try {
@@ -38,7 +38,7 @@ const api = {
 
       return flashcardsDeck;
     } catch (error) {
-      console.log(error, 'error');
+      console.log(error, "error");
     }
   },
   getDecks() {
@@ -55,7 +55,7 @@ const api = {
   },
   removeNotificationSync(list) {
     const removedNotification = list.filter(items => {
-      return items !== 'flash_cards';
+      return items !== "flash_cards";
     });
     return removedNotification;
   },

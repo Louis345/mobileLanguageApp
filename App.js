@@ -1,7 +1,8 @@
-import React from 'react';
-import { StyleSheet, SafeAreaView, View } from 'react-native';
-import Router from './router/Router';
-import { NavigationContextProvider } from './context/navigation_context';
+import React from "react";
+import { StyleSheet, SafeAreaView, View } from "react-native";
+import QuickPicker from "quick-picker";
+import Router from "./router/Router";
+import { NavigationContextProvider } from "./context/navigation_context";
 
 export default class App extends React.PureComponent {
   render() {
@@ -9,6 +10,7 @@ export default class App extends React.PureComponent {
       <View style={{ flex: 1 }}>
         <NavigationContextProvider>
           <Router />
+          <QuickPicker />
         </NavigationContextProvider>
       </View>
     );
@@ -18,8 +20,8 @@ export default class App extends React.PureComponent {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center'
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
   }
 });

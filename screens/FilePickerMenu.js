@@ -22,7 +22,7 @@ const FilePickerMenu = ({ navigation }) => {
       <Button
         title="Take Picture"
         onPress={() =>
-          navigation.navigate("Camera", {
+          navigation.navigate("ImagePicker", {
             useSavedPhoto: false
           })
         }

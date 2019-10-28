@@ -8,6 +8,7 @@ function speech(WrappedComponent) {
       isSoundPlaying: null
     };
 
+    translate = async () => {};
     createWord = word => {
       const response = axios
         .post("http://ec2-3-89-189-253.compute-1.amazonaws.com", {

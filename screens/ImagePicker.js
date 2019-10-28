@@ -1,9 +1,19 @@
 import * as React from "react";
-import { Button, Image, View, Platform } from "react-native";
+import {
+  Button,
+  Image,
+  View,
+  Platform,
+  TouchableOpacity,
+  Text,
+  ActivityIndicator
+} from "react-native";
 import * as ExpoImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import FormData from "form-data";
+import { Camera } from "expo-camera";
+import { Ionicons } from "@expo/vector-icons";
 
 export default class ImagePicker extends React.Component {
   componentDidMount() {
@@ -11,15 +21,20 @@ export default class ImagePicker extends React.Component {
     const {
       navigation: {
         state: {
-          params: { scrollToCard }
+          params: { useSavedPhoto }
         }
       }
     } = this.props;
+    this.setState({ useSavedPhoto });
   }
 
+  componentWillMount() {
+    console.log("test");
+  }
   state = {
     image: null,
-    useSavedPhoto: false
+    useSavedPhoto: false,
+    isLoading: false
   };
 
   getPermissionAsync = async () => {
@@ -47,7 +62,6 @@ export default class ImagePicker extends React.Component {
 
   createFormData = (photo, body) => {
     const data = new FormData();
-    console.log(this.state.image);
     data.append("photo", {
       name: this.state.image,
       type: "jpg",
@@ -60,28 +74,73 @@ export default class ImagePicker extends React.Component {
     Object.keys(body).forEach(key => {
       data.append(key, body[key]);
     });
-    console.log({ data });
+
     return data;
   };
 
   handleUploadPhoto = () => {
-    fetch("http://ec2-3-89-189-253.compute-1.amazonaws.com/Images", {
-      method: "POST",
-      body: this.createFormData(this.state.image, { userId: "123" })
-    })
-      .then(response => response.json())
-      .then(response => {
-        console.log("upload succes", response);
-        alert("Upload success!");
-        this.setState({
-          image: null,
-          response
-        });
-      })
-      .catch(error => {
-        console.log("upload error", error);
-        alert("Upload failed!");
-      });
+    this.setState(
+      {
+        isLoading: true
+      },
+      () => {
+        fetch("http://ec2-3-89-189-253.compute-1.amazonaws.com/Images", {
+          method: "POST",
+          body: this.createFormData(this.state.image, { userId: "123" })
+        })
+          .then(response => response.json())
+          .then(response => {
+            alert("Upload success!");
+            this.setState({
+              image: null,
+              response,
+              isLoading: false
+            });
+          })
+          .catch(error => {
+            console.log("upload error", error);
+            alert("Upload failed!");
+          });
+      }
+    );
+  };
+
+  renderCamera = () => {
+    const { response } = this.state;
+    response && this.handleResponse();
+    return (
+      <Camera
+        style={{ flex: 1 }}
+        type={this.state.type}
+        ref={ref => {
+          this.camera = ref;
+        }}
+        type={this.state.type}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "transparent",
+            flexDirection: "row"
+          }}
+        >
+          <TouchableOpacity
+            style={{
+              flex: 0.1,
+              alignSelf: "flex-end",
+              alignItems: "center"
+            }}
+            onPress={() => {
+              this.snapPhoto();
+            }}
+          >
+            <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
+              Snaps
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </Camera>
+    );
   };
 
   async snapPhoto() {
@@ -94,16 +153,21 @@ export default class ImagePicker extends React.Component {
         fixOrientation: true,
         exif: true
       };
-      await this.camera.takePictureAsync(options).then(photo => {
-        photo.exif.Orientation = 1;
-        console.log(photo);
-      });
+      const response = await this.camera
+        .takePictureAsync(options)
+        .then(photo => {
+          photo.exif.Orientation = 1;
+          console.log(photo.uri);
+          console.log(photo);
+          console.log("in async");
+          this.setState({ image: photo.uri });
+        });
     }
   }
 
-  render() {
-    let { image, response } = this.state;
+  handleResponse = () => {
     let parsedResponse = null;
+    const { response } = this.state;
     if (response) {
       parsedResponse = response[0].fullTextAnnotation.text
         .split(/(\r\n|\n|\r)/gm)
@@ -115,12 +179,20 @@ export default class ImagePicker extends React.Component {
           };
         });
     }
+    this.setState({
+      image: null,
+      response: null
+    });
     parsedResponse &&
       this.props.navigation.navigate("CreateDeck", {
         flashcards: parsedResponse,
         title: "Needs A Title",
         date: new Date()
       });
+  };
+  renderUpLoadImageControls = () => {
+    let { image, response } = this.state;
+    response && this.handleResponse();
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         {!response && (
@@ -129,19 +201,43 @@ export default class ImagePicker extends React.Component {
             onPress={this._pickImage}
           />
         )}
-        {image && !response && (
-          <View>
-            <Image
-              source={{ uri: image }}
-              style={{ width: 200, height: 200 }}
-            />
-            <Button
-              title="Upload Image To Server"
-              onPress={this.handleUploadPhoto}
-            />
-          </View>
-        )}
       </View>
     );
+  };
+
+  renderLoadingScreen = () => {
+    alert("renderLoading Screen");
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  };
+
+  render() {
+    const { useSavedPhoto, image, isLoading } = this.state;
+
+    if (!isLoading && image) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+          <Button
+            title="Upload Image To Server"
+            onPress={this.handleUploadPhoto}
+          />
+        </View>
+      );
+    }
+    return useSavedPhoto
+      ? this.renderUpLoadImageControls()
+      : isLoading
+      ? this.renderLoadingScreen()
+      : this.renderCamera();
   }
 }

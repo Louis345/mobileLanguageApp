@@ -5,16 +5,33 @@ import {
   StyleSheet,
   Text,
   View,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  PickerIOS
 } from "react-native";
+import QuickPicker from "quick-picker";
+import Touchable from "@appandflow/touchable";
 import AsyncStorage from "../util/fetchData";
 import withNavigationContextConsumer from "../context/with-navigation-context-consumer";
+import { FloatingAction } from "react-native-floating-action";
 import Speech from "../components/HOC/Speech";
 const SCREEN_WIDTH = Dimensions.get("window").width;
 let xOffset = new Animated.Value(0);
-let counter = null;
-import { MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { summerSky } from "../styles/styles";
+import ActionSheet from "../components/ActionSheet/ActionSheet";
+import { Input, Button } from "react-native-elements";
+import axios from "axios";
+import fetchData from "../util/fetchData";
+
+const actions = [
+  {
+    text: "Translate",
+    icon: <MaterialIcons name="translate" size={30} color={summerSky} />,
+    name: "translate",
+    position: 2
+  }
+];
+
 class CardScroll extends Component {
   constructor(props) {
     super(props);
@@ -23,7 +40,11 @@ class CardScroll extends Component {
       flashcards,
       flipping: false,
       count: 0,
-      showModal: false
+      showModal: false,
+      isPanelOpen: false,
+      isFlipped: false,
+      targetLanguage: null,
+      hasWordBeenTranslated: false
     };
 
     this.flipValue = new Animated.Value(0);
@@ -57,11 +78,14 @@ class CardScroll extends Component {
     const { selectedCardDeck } = this.props;
 
     const cards = AsyncStorage.getDeckList(selectedCardDeck);
+
     cards.then(cards => {
+      console.log(cards);
       this.setState({
         flipped: this.state.flashcards.map(() => false),
         deckLength: this.state.flashcards.length,
-        flashcards: cards.flashcards
+        flashcards: cards.flashcards,
+        date: cards.date
       });
     });
 
@@ -144,7 +168,6 @@ class CardScroll extends Component {
             <TouchableWithoutFeedback
               onPress={() => {
                 card.isCardFlipped = !card.isCardFlipped;
-                console.log(card);
                 this.flipCard(index);
               }}
             >
@@ -193,9 +216,11 @@ class CardScroll extends Component {
     this.setState(
       {
         flipping: true,
-        flipped
+        flipped,
+        isFlipped
       },
       () => {
+        console.log({ isFlipped });
         this.flipValue.setValue(isFlipped ? 1 : 0);
         Animated.timing(this.flipValue, {
           toValue: isFlipped ? 0 : 1,
@@ -208,18 +233,100 @@ class CardScroll extends Component {
     );
   };
 
+  handleTranslation = async () => {
+    const { hasWordBeenTranslated, currentlyViewedCard } = this.state;
+    console.log("handle Translation");
+    console.log({ currentlyViewedCard });
+    const translationPromise = await axios.post(
+      "http://ec2-3-89-189-253.compute-1.amazonaws.com/translate",
+      { text: currentlyViewedCard, target: this.state.targetLanguage }
+    );
+
+    console.log({ translationPromise });
+    this.setState({
+      translatedWord: translationPromise.data[0],
+      hasWordBeenTranslated: true
+    });
+  };
+
+  handleLanguageDetection = async () => {
+    const { currentlyViewedCard } = this.state;
+    const detectionPromise = await axios.post(
+      "http://ec2-3-89-189-253.compute-1.amazonaws.com/languageDetection",
+      { text: currentlyViewedCard }
+    );
+    console.log({ detectionPromise });
+    this.setState({
+      detectedLanguage: detectionPromise.data[0]
+    });
+  };
+
+  openDropDown = () => {
+    QuickPicker.open({
+      items: ["", "ja", "en"],
+      selectedValue: " ", // this could be this.state.selectedLetter as well.
+      onValueChange: selectedValueFromPicker => {
+        console.log({ selectedValueFromPicker });
+        this.setState({ targetLanguage: selectedValueFromPicker });
+      }
+    });
+  };
+
+  upDateCard = async () => {
+    const {
+      flashcards,
+      currentlyViewedCard,
+      flipping,
+      translatedWord,
+      date,
+      hasWordBeenTranslated
+    } = this.state;
+
+    const sideOfFlashcard = !flipping ? "front" : "back";
+
+    const updatedFlashcardDeck = flashcards.map((flashcard, index) => {
+      if (flashcard[sideOfFlashcard] === currentlyViewedCard) {
+        flashcard[
+          sideOfFlashcard === "front" ? "back" : "front"
+        ] = translatedWord;
+      }
+      return flashcard;
+    });
+
+    const response = await AsyncStorage.setDeck(
+      this.props.selectedCardDeck,
+      date,
+      updatedFlashcardDeck
+    );
+
+    this.setState({
+      isPanelOpen: false,
+      hasWordBeenTranslated: false
+    });
+  };
+
   render() {
-    const { flashcards } = this.state;
+    const { flashcards, targetLanguage, hasWordBeenTranslated } = this.state;
+    let currentlyViewedCard = null;
+    const actionSheetHeight = {
+      top:
+        Dimensions.get("window").height -
+        Dimensions.get("window").height * -0.05
+    };
 
     return (
       <View style={styles.container}>
         <TouchableWithoutFeedback
           onPress={async () => {
-            const response = await this.props.createWord(
-              !flashcards[this.currentlyViewedCard].isCardFlipped
+            if (flashcards.length > 1) {
+              currentlyViewedCard = !this.state.flipped[
+                this.currentlyViewedCard
+              ]
                 ? flashcards[this.currentlyViewedCard].front
-                : flashcards[this.currentlyViewedCard].back
-            );
+                : flashcards[this.currentlyViewedCard].back;
+            }
+
+            const response = await this.props.createWord(currentlyViewedCard);
             if (response) this.props.speak();
           }}
         >
@@ -248,12 +355,106 @@ class CardScroll extends Component {
             } else {
               this.currentlyViewedCard = this.currentlyViewedCard + 1;
             }
-            console.log(this.currentlyViewedCard);
             this.offset = currentOffset;
           }}
         >
           {flashcards && flashcards.map(this.renderCard)}
         </Animated.ScrollView>
+        <FloatingAction
+          actions={actions}
+          onPressItem={name => {
+            if (flashcards.length > 1) {
+              currentlyViewedCard = !this.state.flipped[
+                this.currentlyViewedCard
+              ]
+                ? flashcards[this.currentlyViewedCard].front
+                : flashcards[this.currentlyViewedCard].back;
+            }
+
+            this.setState(
+              {
+                isPanelOpen: !this.state.isPanelOpen,
+                currentlyViewedCard
+              },
+              () => this.handleLanguageDetection()
+            );
+          }}
+        />
+        <ActionSheet
+          animatePanel={this.state.isPanelOpen}
+          height={actionSheetHeight}
+        >
+          <View
+            style={{ flex: 1, marginTop: 5, marginLeft: 5, marginRight: 5 }}
+          >
+            <View style={styles.translateHeader}>
+              <Text>{this.state.detectedLanguage} - detected</Text>
+              <AntDesign name="swap" size={30} color={summerSky} />
+              <Touchable
+                feedback="opacity"
+                native={false}
+                onPress={this.openDropDown}
+                style={{ flexDirection: "row" }}
+              >
+                <Text>
+                  {targetLanguage === null ? "Language" : targetLanguage}
+                </Text>
+                <AntDesign name="caretdown" size={14} color={summerSky} />
+              </Touchable>
+            </View>
+            <View style={styles.inputContainer}>
+              <View style={{ flex: 0.5 }}>
+                <Input
+                  placeholder="Enter deck title"
+                  onChangeText={this.handleTitleChange}
+                  ref={ref => {
+                    this.FirstInput = ref;
+                  }}
+                  defaultValue={this.state.currentlyViewedCard}
+                />
+              </View>
+              <View style={{ flex: 0.5 }}>
+                <Input
+                  placeholder="Enter Word"
+                  onChangeText={this.handleTitleChange}
+                  ref={ref => {
+                    this.FirstInput = ref;
+                  }}
+                  defaultValue={this.state.translatedWord}
+                  style={{
+                    borderRadius: 4,
+                    borderBottomWidth: 0.5,
+                    borderColor: "#fff"
+                  }}
+                />
+              </View>
+            </View>
+            <View style={styles.buttonContainer}>
+              <Button
+                title={hasWordBeenTranslated ? "Update Card" : "Translate Card"}
+                onPress={() =>
+                  hasWordBeenTranslated
+                    ? this.upDateCard()
+                    : this.handleTranslation()
+                }
+              />
+              <Button
+                title="Cancel"
+                onPress={() =>
+                  this.setState({
+                    isPanelOpen: false,
+                    currentlyViewedCard: !this.state.flipped[
+                      this.currentlyViewedCard
+                    ]
+                      ? flashcards[this.currentlyViewedCard].front
+                      : flashcards[this.currentlyViewedCard].back
+                  })
+                }
+                style={{ marginTop: 10 }}
+              />
+            </View>
+          </View>
+        </ActionSheet>
       </View>
     );
   }
@@ -266,6 +467,13 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center"
+  },
+  translateHeader: {
+    width: "100%",
+    flex: 0.07,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around"
   },
   scrollView: {
     flexDirection: "row",
@@ -284,6 +492,16 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     width: SCREEN_WIDTH - 20 * 2,
     backfaceVisibility: "hidden"
+  },
+  inputContainer: {
+    borderColor: "#d6d7da",
+    flexDirection: "row"
+  },
+  buttonContainer: {
+    flexDirection: "column",
+    flex: 1,
+    marginTop: 20,
+    padding: 20
   },
   text: {
     fontSize: 45,
