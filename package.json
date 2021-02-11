@@ -7,12 +7,23 @@
     "eject": "expo eject"
   },
   "dependencies": {
+    "eslint-config-prettier": "^6.0.0",
     "expo": "^32.0.0",
+    "expo-barcode-scanner": "^5.0.1",
+    "expo-permissions": "^5.0.1",
     "react": "16.5.0",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz"
+    "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-dash": "^0.0.9",
+    "react-native-elements": "^1.1.0",
+    "react-navigation": "^3.11.0"
   },
   "devDependencies": {
-    "babel-preset-expo": "^5.0.0"
+    "babel-preset-expo": "^5.0.0",
+    "eslint": "5.3.0",
+    "eslint-config-airbnb": "17.1.1",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.14.2"
   },
   "private": true
 }
